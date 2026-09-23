@@ -16,7 +16,7 @@ Statuses: `todo` → `doing` → `review` → `lab` → `done` · `blocked` (wri
 | T-001 | Fork upstream repos, submodules, THIRD_PARTY.md | H | – | lab |
 | T-002 | Code skeleton, laptop env, test runner | S | T-001 | done |
 | T-003 | Lab PC setup (WSL2, CUDA, conda, Tailscale) | H | – | todo |
-| T-004 | Lab env files (conda `ps`, COLMAP env, checkpoints) | S | T-001, T-003 | todo |
+| T-004 | Lab env files (conda `ps`, COLMAP env, checkpoints) | S | T-001, T-003 | lab |
 | T-005 | SAGA port spike (timebox 3 days) | M | T-004, T-007 | todo |
 | T-006 | Fallback legacy `saga` env (only if T-005 = FALLBACK) | S | T-005, T-A01 | todo |
 | T-007 | Download LERF-OVS and check its layout | S/H | T-002, T-003 | todo |

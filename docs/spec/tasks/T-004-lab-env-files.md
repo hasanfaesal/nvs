@@ -113,3 +113,10 @@ Also record the sam2 / segment-anything / open_clip versions and SHAs in `THIRD_
 - [ ] Both scripts work on the lab PC; lock files committed; `THIRD_PARTY.md` updated
 
 ## Findings / Blockers
+- Laptop check passed (`syntax-ok`); `pytest -q` green. Lab check pending (needs T-003).
+- VERIFIED from `third_party/gsplat/examples/requirements.txt` (fork HEAD `512d366b`): it pins `torch==2.9.1` and `torchvision==0.24.1`, so it keeps our torch.
+- ASSUMPTION: installed the gsplat examples requirements with `--no-build-isolation`, as the gsplat README says. Without it, `fused-ssim` / `fused-bilagrid` / `ppisp` (git, CUDA builds) would compile against a different torch in an isolated build env.
+- VERIFY on lab: `examples/requirements.txt` also pulls `nvidia-ncore>=19.0.0` (only for NCore AV data) and `ppisp` from git. If either fails to install, drop that line and note it here. Our COLMAP training path shouldn't need them, but check that `simple_trainer.py` imports cleanly without them.
+- VERIFY on lab: the SAM 2.1 URL (`segment_anything_2/092824/sam2.1_hiera_large.pt`) comes from the upstream sam2 `checkpoints/download_ckpts.sh`; I couldn't confirm it offline. The SAM v1 URL matches `third_party/SegAnyGAussians/README.md` and `third_party/AutoSeg-SAM2/checkpoints/sam1/download.sh`.
+- Note for T-B06/T-B07: `third_party/AutoSeg-SAM2/checkpoints/sam2/download.sh` downloads **SAM 2.0** checkpoints (`072824/`, `sam2_hiera_*.pt`), not 2.1. Its vendored `sam2/` may not load 2.1 configs or checkpoints, so check this when patching the fork.
+- The heredoc delimiter in `setup_lab.sh` is `PY` (not `EOF`), with the same behavior.
