@@ -5,3 +5,25 @@ texput.log
 # Tool caches
 .superpowers/
 .firecrawl/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# Big local data — never commit (NFR-8)
+data/
+scenes/
+checkpoints/
+*.pt
+*.pth
+*.ply
+*.spz
+*.npy
+*.npz
+*.joblib
+# Web
+web/node_modules/
+web/.output/
+web/.nuxt/
+web/.data/

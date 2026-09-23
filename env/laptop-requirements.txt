@@ -1,0 +1,12 @@
+numpy
+opencv-python-headless
+plyfile
+pyyaml
+fastapi
+uvicorn
+httpx
+pytest
+scikit-learn
+scipy
+pycolmap
+joblib
