@@ -109,3 +109,11 @@ Expected: 4 scenes with counts matching T-007's Findings, PINHOLE, ≈ 986×728,
 - [ ] Tests pass; the 4 scenes are ingested on the lab
 
 ## Findings / Blockers
+Laptop run on 2026-09-24 (pycolmap **4.2.0** in `.venv`, real LERF-OVS data from T-007):
+- The Step 1 attribute names work on 4.2.0: `img.has_pose` exists, `cam_from_world` is a **method**, `cam.model.name` = `"PINHOLE"`, `calibration_matrix()` gives pixel K.
+- The Lab check, run here into a temp `PS_SCENES_DIR`, prints exactly T-007's counts: figurines 299 PINHOLE 986×728 (50517 pts, 4 labels), ramen 131 988×731 (29746, 7), waldo_kitchen 187 985×725 (17475, 5), teatime 177 988×730 (25503, 6). A second call printed `skip (exists)`. The 4 `source/` dirs take 343 MB in total.
+- **VERIFY on lab:** the lab pycolmap version (`python -c "import pycolmap; print(pycolmap.__version__)"`) and that the Lab check prints the same numbers.
+- `configs/scenes.yaml` was not changed: T-007's folder names match the configured paths. Its "VERIFY (T-007)" comment is now resolved but still in the file.
+- `sparse/0` also holds `points3D.ply`; ingest copies only `*.bin`/`*.txt` (as Step 2.6 says), so the `.ply` is dropped.
+- ASSUMPTION: `--labels` only applies together with `--colmap`; without `--colmap` the labels path comes from `configs/scenes.yaml` (`ingest_from_config` has no labels argument in the Interface).
+- ASSUMPTION: missing registered images raise `FileNotFoundError` (the card says only "raise"); an empty model (0 registered images) raises `ValueError`.
