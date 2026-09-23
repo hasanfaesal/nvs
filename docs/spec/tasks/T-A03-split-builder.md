@@ -76,3 +76,15 @@ Expected: the annotated counts match T-007 (4 / 7 / 5 / 6); figurines excludes �
 - [ ] Tests pass; 4 split files exist on the lab
 
 ## Findings / Blockers
+Laptop, 2026-09-24: `pytest -q` is green (6 tests in `tests/test_split.py`). The functions were also run read-only on the laptop copy of LERF-OVS (`data/raw/lerf_ovs`, `factor=10`, `every=8`). No `scenes/` files were written.
+
+| Scene | train | test | test share | annotated | excluded |
+|---|---|---|---|---|---|
+| figurines | 258 | 40 | 13.4% | 4 | `frame_00162.jpg` (41.7× median distance; next highest 1.6×) |
+| ramen | 109 | 22 | 16.8% | 7 | — (max 1.9×) |
+| waldo_kitchen | 159 | 28 | 15.0% | 5 | — (max 2.7×) |
+| teatime | 150 | 27 | 15.3% | 6 | — (max 1.8×) |
+
+- ramen's test share (16.8%) is above the expected 13–15%. It is a small scene (131 frames), so its 7 annotated frames add more on top of every 8th frame. This is expected, not a bug.
+- ASSUMPTION: `excluded` in `split.json` lists every outlier camera name, including any that are also annotated. A labelled outlier frame is dropped from `annotated` and from both lists, following the card's step 2. There were none in LERF-OVS.
+- VERIFY on lab: the lab check should reproduce the numbers above after `ingest`.
