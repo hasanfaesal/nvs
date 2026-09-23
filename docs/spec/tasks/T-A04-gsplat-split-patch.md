@@ -74,3 +74,9 @@ Expected: `[split_file] train: <len(train)> images` and `[split_file] val: <len(
 - [ ] Fork commit pushed; submodule bumped; the lab check counts match
 
 ## Findings / Blockers
+- Fork commit `297addc8` on `promptsplat` (pushed); submodule bumped. Diff: colmap.py +12/−1, simple_trainer.py +4/−1.
+- `json` is already imported at the top of `colmap.py`, so the card's inner `import json` was dropped; the original `if split == "train"` became `elif` behind the new branch (otherwise unchanged).
+- Laptop logic check (stubbed GPU/image imports, not committed): train `[2,3]`, val `[1,9]` from a toy split.json; no flag → `[0,8]` (upstream `test_every`); unknown name → `AssertionError: split_file names not in COLMAP model: ['nope.jpg']`.
+- `Parser.image_names` = `pycolmap` `image.name` sorted (colmap.py ≈L195–200), i.e. names relative to the COLMAP image root. Flat `images/` → plain file names, same as split.json. VERIFY on lab: the `[split_file]` counts print without an assertion.
+- Only the COLMAP `Dataset` is patched; the NCore branch of `simple_trainer.py` ignores `--split_file` (not used by PromptSplat).
+- VERIFY on lab: flag spelling. The fork pins `tyro>=0.8.8`, which accepts both `--max_steps` and `--max-steps`; confirm with `python simple_trainer.py mcmc --help | grep -E "split.file|max.steps|disable.viewer"`.
