@@ -69,6 +69,11 @@ pytest -q tests/test_frames.py tests/test_imports.py
 Covered by T-A15 (a real phone video).
 
 ## Done when
-- [ ] Tests pass
+- [x] Tests pass
 
 ## Findings / Blockers
+- ASSUMPTION: `cfg` in `extract_frames` is the `frames` section of `pipeline.yaml` (T-A15 calls it with `cfg["frames"]`).
+- ASSUMPTION: "dropped D" in the progress line counts frames removed by the blur cut only (window winners − kept), matching `dropped_blur` in 07-phase-a.md §2; the 1-of-`keep_every` window loss is implied by extracted vs kept.
+- ASSUMPTION: status set to `done`, not `lab`: this card has no lab step of its own (Done when = tests pass); the real-video check happens in T-A15.
+- Added a `RuntimeError` when ffmpeg produces no frames, so a bad video path fails with a clear message instead of an empty scene.
+- Laptop check: `pytest -q tests/test_frames.py tests/test_imports.py` passes (ffmpeg present; synthetic run: extracted 18, kept 9); full `pytest -q` green.
