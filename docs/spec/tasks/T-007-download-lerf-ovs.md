@@ -75,3 +75,33 @@ Step 2. Expected: about 299 / 131 / 187 / 177 images and 4 / 7 / 5 / 6 label JSO
 - [ ] Data present on the lab; Findings filled in; `THIRD_PARTY.md` has the data licence line
 
 ## Findings / Blockers
+Inspected on the laptop on 2026-09-24 (the lab PC still needs its own download). The Google Drive download worked first time (746 MB zip, 948 MB unpacked). The HF fallback was not needed.
+
+**Folder names** (`data/raw/lerf_ovs/`): `figurines/`, `ramen/`, `waldo_kitchen/`, `teatime/`, `label/`. There is no extra wrapper folder.
+- Each scene has `images/`, `sparse/0/` (`cameras.bin`, `images.bin`, `points3D.bin`, `points3D.ply`), plus the COLMAP leftovers `distorted/` (`database.db`, `sparse/0` with **OPENCV** cameras, the raw pre-undistortion model) and `stereo/`. Use `images/` + `sparse/0` only.
+- Labels: `label/<scene>/frame_XXXXX.json` + `frame_XXXXX.jpg`.
+
+| Scene | images (= registered) | label JSONs | camera (`sparse/0`) | W×H | labelled frames | objects | distinct categories (strip+lower) |
+|---|---|---|---|---|---|---|---|
+| figurines | 299 | 4 | PINHOLE, 1 camera | 986×728 | 41, 105, 152, 195 | 57 | 21 |
+| ramen | 131 | 7 | PINHOLE, 1 camera | 988×731 | 6, 24, 60, 65, 81, 119, 128 | 80 | 14 |
+| waldo_kitchen | 187 | 5 | PINHOLE, 1 camera | 985×725 | 53, 66, 89, 140, 154 | 29 | 18 |
+| teatime | 177 | 6 | PINHOLE, 1 camera | 988×730 | 2, 25, 43, 107, 129, 140 | 62 | 14 |
+
+- Every registered image name exists in `images/` and vice versa. Every labelled frame exists in `images/`.
+- **Frame numbers have gaps** (the frames were dropped before COLMAP): figurines is missing 293 and 295 (last frame 00301), waldo_kitchen 155–157 (last 00190), teatime 148, 155 and 156 (last 00180). ramen has no gaps. Sorted names are still capture order, but frame number ≠ index. The split (T-A03) must work on the sorted list, not on `int(name)`.
+- Image sizes differ per scene (not all 986×728). `info.width/height` in each label JSON matches its scene's camera.
+- **Category counts differ from `09-experiments-and-evaluation.md` §2** (17/14/17/16): the real counts are 21/14/18/14. Raw and normalised counts are the same (no case or whitespace duplicates). Update that table when it is next allowed to be edited.
+
+**Label JSON:** top-level keys `info`, `objects`.
+- `info` = `{name, width, height, depth, note}`.
+- Each object = `{category, group, segmentation, area, layer, bbox, iscrowd, note}`.
+- `segmentation` is **one polygon**, a list of `[x, y]` points. This is not COCO's flat list-of-lists.
+- `bbox` is `[x1, y1, x2, y2]` in pixels (x2 > x1 and y2 > y1 for every object). This is not COCO's xywh.
+- Sample: figurines `frame_00041.json` → `{'category': 'old camera', 'group': 3, 'area': 12124.0, 'layer': 1.0, 'bbox': [434.0, 109.0, 607.0, 231.0], 'iscrowd': 0, 'note': ''}`.
+
+**README / licence:** the zip contains **no** README, LICENSE or `.txt`/`.md` files, so there is no annotation licence text to copy. `THIRD_PARTY.md` row "LERF-OVS data" should read: download date 2026-09-24, Drive id `1QF1Po5p5DwTjFHu6tnTeYs_G0egMVmHt`; licence: "LERF scenes: MIT (LERF repo); LangSplat annotations: no licence stated in the zip, research use, cite LangSplat". I did not edit `THIRD_PARTY.md` because it is not in this card's Files, so the human still needs to make that edit.
+
+**Script change vs. the card:** the HF fallback uses `hf download` instead of `huggingface-cli download`. huggingface_hub ≥ 1.0 (1.32.0 installed; `setup_lab.sh` installs it unpinned) prints "`huggingface-cli` is deprecated and no longer works". The mirror path itself was not exercised.
+
+**Lab:** still to do: run the script and Step 2 on the lab PC. Expect exactly the counts above.
