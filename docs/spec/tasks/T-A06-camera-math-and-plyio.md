@@ -102,6 +102,11 @@ pytest -q tests/test_camera.py tests/test_plyio.py tests/test_imports.py
 None (pure code). It's exercised by T-A07 and T-B12.
 
 ## Done when
-- [ ] All the vector tests pass
+- [x] All the vector tests pass
 
 ## Findings / Blockers
+- Laptop check passes: `pytest -q tests/test_camera.py tests/test_plyio.py tests/test_imports.py`; full `pytest -q` green.
+- ASSUMPTION: `threejs_to_viewmat` returns only the viewmat; render size and K come from `fit_render_size` + `fov_intrinsics`, and the clicked pixel from `pixel_to_render` (C10.5 split across the listed functions).
+- ASSUMPTION: `initial_view` uses the per-axis median of `points_xyz` for `m` (C10.4 "median of sparse points3D xyz").
+- Test 5 tolerance: pixel (49, 49) samples the pixel centre (49.5, 49.5), so the ray is ~0.01 off −z; the test uses `atol=0.02`.
+- No blockers.

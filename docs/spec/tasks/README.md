@@ -25,7 +25,7 @@ Statuses: `todo` → `doing` → `review` → `lab` → `done` · `blocked` (wri
 | T-A03 | Split builder (`split.json`) | S | T-A02 | lab |
 | T-A04 | gsplat fork patch: `split_file` | S | T-001 | lab |
 | T-A05 | `train3dgs` wrapper (gsplat MCMC) | S | T-A03, T-A04, T-004 | lab |
-| T-A06 | Camera math + PLY I/O | S | T-002 | todo |
+| T-A06 | Camera math + PLY I/O | S | T-002 | done |
 | T-A07 | `export`: web PLY, manifest, phase_a.json | S | T-A05, T-A06 | todo |
 | T-A08 | FastAPI Phase A + static web | S | T-A01, T-A06 | todo |
 | T-A09 | Fixture scene for laptop dev | S | T-A06 | todo |
