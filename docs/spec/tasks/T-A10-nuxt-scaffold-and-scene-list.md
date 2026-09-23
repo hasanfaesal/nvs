@@ -90,3 +90,13 @@ Then open `http://localhost:8000` in the lab PC's Windows browser. The real scen
 - [ ] `nuxi generate` works; the scene list shows the fixture (laptop) and the real scenes (lab)
 
 ## Findings / Blockers
+- VERIFIED create command: `create-nuxt` v3.37.0 accepts `npm create nuxt@latest web -- -t ui`. Ran it non-interactively as `npx create-nuxt@latest web -t ui --packageManager=npm --no-gitInit --modules=`, so there is no nested `web/.git`.
+- The `ui` template ships pnpm files (`pnpm-lock.yaml`, `pnpm-workspace.yaml`, `"packageManager": "pnpm@…"`), so create-nuxt skipped the install. Switched to npm by deleting those files and the `packageManager` field. `web/package-lock.json` is committed.
+- Removed the template demo content: `app/components/{AppLogo,TemplateMenu}.vue`, the `.github/` CI (pnpm), `renovate.json`, `README.md`, the starter hero page, and `routeRules` (prerender makes no sense with `ssr: false`). Kept `app/app.config.ts` (theme colours), `main.css`, `eslint.config.mjs`, `LICENSE` (template MIT) and the `@nuxt/eslint` module.
+- Versions installed: nuxt ^4.5.2, @nuxt/ui ^4.11.1, three ^0.186.0, @types/three ^0.186.0. `@sparkjsdev/spark` is pinned to exactly `2.2.0` (`npm install -E`), because npm would otherwise write `^2.2.0`.
+- Node 25.2.1 / npm 11.6.2 on the laptop: no engine warnings.
+- Laptop check passes: `nuxi generate` writes `.output/public/{index.html,200.html,404.html,_nuxt,…}`. `nuxi typecheck` and `eslint .` are clean.
+- Checked against `PS_FAKE=1 uvicorn server.app:app`: `/` serves the SPA, and `/api/scenes` returns the `_fixture` card data. Not checked in a browser (that is the manual step).
+- ASSUMPTION: `useApi.ts` follows the card's code exactly. It has no `assetUrl(id)` (07-phase-a §11.2), because `SceneSummary.asset_url` already holds the URL from the server. The viewer card can add it if it needs it.
+- ASSUMPTION: the Gaussian count is shown as `(n/1e6).toFixed(2) M`, e.g. `1.00 M`, as the card says (§11.2 shows "1.0 M"). Metrics use PSNR 1 decimal, SSIM/LPIPS 2 decimals, and only the ones that are numbers.
+- Finding (server, outside this card): Nuxt's generate also writes `404.html`. Starlette's `StaticFiles(html=True)` serves that file with **status 404** for unknown paths, so `server/app.py`'s `200.html` fallback never runs. Deep links like `/scene/_fixture` still load the app (`404.html` is the same SPA shell), but they come back with status 404. The fix belongs in the server (T-A08 scope), e.g. delete `404.html` after generate or check for the fallback before `StaticFiles`.

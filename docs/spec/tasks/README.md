@@ -29,7 +29,7 @@ Statuses: `todo` → `doing` → `review` → `lab` → `done` · `blocked` (wri
 | T-A07 | `export`: web PLY, manifest, phase_a.json | S | T-A05, T-A06 | lab |
 | T-A08 | FastAPI Phase A + static web | S | T-A01, T-A06 | lab |
 | T-A09 | Fixture scene for laptop dev | S | T-A06 | done |
-| T-A10 | Nuxt scaffold + scene list | S | T-A08, T-A09 | todo |
+| T-A10 | Nuxt scaffold + scene list | S | T-A08, T-A09 | lab |
 | T-A11 | `SplatViewer` (Spark) | S | T-A10 | todo |
 | T-A12 | Explorer page, Phase A | S | T-A11 | todo |
 | T-A13 | Frames + blur filter | S | T-A01 | todo |
