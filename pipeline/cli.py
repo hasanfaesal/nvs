@@ -5,7 +5,7 @@ from pathlib import Path
 
 from pipeline.config import load_config, repo_root, scenes_root
 from pipeline.export_web import export
-from pipeline.ingest import ingest_colmap, ingest_from_config
+from pipeline.ingest import ingest_colmap, ingest_from_config, ingest_images, ingest_video
 from pipeline.run_stage import git_sha
 from pipeline.split import build_split
 from pipeline.train_3dgs import train
@@ -22,8 +22,13 @@ def cmd_info(args: argparse.Namespace) -> int:
 
 
 def cmd_ingest(args: argparse.Namespace) -> int:
+    labels = args.labels and args.labels.resolve()
     if args.colmap:
-        ingest_colmap(args.scene, args.colmap.resolve(), args.labels and args.labels.resolve(), args.force)
+        ingest_colmap(args.scene, args.colmap.resolve(), labels, args.force)
+    elif args.video:
+        ingest_video(args.scene, args.video.resolve(), labels, args.force)
+    elif args.images:
+        ingest_images(args.scene, args.images.resolve(), labels, args.matcher, args.force)
     else:
         ingest_from_config(args.scene, args.force)
     return 0
@@ -49,10 +54,15 @@ def build_parser()-> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("info", help="print paths, scenes, GPU and git info").set_defaults(func=cmd_info)
     # Stage cards add their subcommands below.
-    p = sub.add_parser("ingest", help="copy a posed dataset into scenes/<id>/source/ (C3)")
+    p = sub.add_parser("ingest", help="build scenes/<id>/source/ from a posed dataset, a video or photos (C3)")
     p.add_argument("--scene", required=True)
-    p.add_argument("--colmap", type=Path, help="dir with images/ and sparse/[0]; default: configs/scenes.yaml")
-    p.add_argument("--labels", type=Path, help="dir of GT *.json (with --colmap)")
+    g = p.add_mutually_exclusive_group()
+    g.add_argument("--colmap", type=Path, help="dir with images/ and sparse/[0]; default: configs/scenes.yaml")
+    g.add_argument("--video", type=Path, help="phone video; frames + COLMAP with the sequential matcher")
+    g.add_argument("--images", type=Path, help="photo folder; resized copies + COLMAP")
+    p.add_argument("--matcher", choices=("sequential", "exhaustive"), default="exhaustive",
+                   help="COLMAP matcher for --images (video always uses sequential)")
+    p.add_argument("--labels", type=Path, help="dir of GT *.json (with --colmap, --video or --images)")
     p.add_argument("--force", action="store_true", help="delete source/ and re-copy")
     p.set_defaults(func=cmd_ingest)
     p = sub.add_parser("split", help="write scenes/<id>/split.json (C4)")
