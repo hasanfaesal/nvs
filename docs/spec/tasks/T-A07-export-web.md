@@ -91,3 +91,10 @@ Expected: `num_gaussians` ≈ the checkpoint's N (≤ 1,000,000 after the full r
 - [ ] Tests pass; export works on the smoke checkpoint from T-A05
 
 ## Findings / Blockers
+- Confirmed in `third_party/gsplat/gsplat/exporter.py`: `export_splats` drops any row with NaN/Inf in means/scales/quats/opacities/sh0/shN (so `neutralize` checks exactly that set), and `splat2ply_bytes` writes `x,y,z` first as little-endian float32, which `plyio.read_xyz` reads back. A laptop round-trip of the copied `splat2ply_bytes` + `read_xyz` on 50 rows with one NaN row kept all 50 rows with matching xyz.
+- Confirmed in `examples/simple_trainer.py`: checkpoints hold `{"splats": state_dict}` with keys `means, scales, quats, opacities, sh0, shN`; val stats hold `psnr, ssim, lpips, num_GS, …`, file name `val_step<step>.json`. `step` is parsed from that name (e.g. 29999).
+- ASSUMPTION: the manifest's `dataset` comes from `cfg["scenes"][id]["dataset"]` (`null` if the scene is missing from scenes.yaml), like `title`/`demo_queries`.
+- ASSUMPTION: `asset_mb` = bytes / 2**20, rounded to 0.1. `created_utc` uses the `YYYY-MM-DDTHH:MM:SSZ` form from C5.
+- ASSUMPTION: `build_phase_a` raises if `stages.jsonl` has no `train_3dgs` line (it can't report training time/VRAM otherwise).
+- The `gsplat`/`torch` imports in `export()` come after the skip check, so a skipped export does not need gsplat.
+- VERIFY on lab: the end-to-end run on the smoke/full checkpoint (gsplat isn't installed on the laptop).
