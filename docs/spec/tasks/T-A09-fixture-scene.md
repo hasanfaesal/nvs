@@ -70,6 +70,10 @@ pytest -q tests/test_fixture.py && python scripts/make_fixture_scene.py && du -s
 None.
 
 ## Done when
-- [ ] Test passes; the fixture is generated on the laptop
+- [x] Test passes; the fixture is generated on the laptop
 
 ## Findings / Blockers
+- Laptop check passes: 30,000 Gaussians, fixture 6.9 MB on disk; full `pytest -q` green. `server.app` (PS_FAKE=1) lists `_fixture` with variants `sam`, `sam2_frame`, `sam2_track_k10` (seed 0).
+- ASSUMPTION: `split.json` also carries `"scene_id": "_fixture"` and `"every": 8` (C4 keys); `rule` is omitted since nothing reads it.
+- ASSUMPTION: the script prepends the repo root to `sys.path` so `python scripts/make_fixture_scene.py` can import `pipeline/` without installing the package; the test imports it as `scripts.make_fixture_scene` via pytest's `pythonpath = ["."]`.
+- Each random mask rectangle is at least 2×2 pixels, so no mask is empty; the test checks this.
