@@ -1,0 +1,8 @@
+---
+description: PromptSplat project rules (always on)
+globs:
+alwaysApply: true
+---
+Before doing any task in this repository, read `AGENTS.md` at the repository root completely and follow it. It is the single source of truth for project rules.
+
+Then read the task card you were given in `docs/spec/tasks/` and only the files it lists under "Read first".
