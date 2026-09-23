@@ -6,6 +6,7 @@ from pathlib import Path
 from pipeline.config import load_config, repo_root, scenes_root
 from pipeline.ingest import ingest_colmap, ingest_from_config
 from pipeline.run_stage import git_sha
+from pipeline.split import build_split
 
 
 def cmd_info(args: argparse.Namespace) -> int:
@@ -26,6 +27,11 @@ def cmd_ingest(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_split(args: argparse.Namespace) -> int:
+    build_split(args.scene, args.force)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m pipeline")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -37,6 +43,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--labels", type=Path, help="dir of GT *.json (with --colmap)")
     p.add_argument("--force", action="store_true", help="delete source/ and re-copy")
     p.set_defaults(func=cmd_ingest)
+    p = sub.add_parser("split", help="write scenes/<id>/split.json (C4)")
+    p.add_argument("--scene", required=True)
+    p.add_argument("--force", action="store_true", help="overwrite an existing split.json")
+    p.set_defaults(func=cmd_split)
     return parser
 
 
