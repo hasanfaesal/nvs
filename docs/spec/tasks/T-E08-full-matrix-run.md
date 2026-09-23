@@ -21,7 +21,7 @@ Every run in `configs/experiments.yaml` completes for the 4 LERF-OVS scenes; `re
    - look at 10 failure renders per variant (`results/*/*/renders_seed0/`) and write 3–5 sentences in Findings on the typical failures.
 5. Commit and tag:
    ```bash
-   git add results && git commit -m "T-E08: full matrix results (LERF-OVS)" && git push && git tag eval-done && git push --tags
+   git add results && git commit -m "[ENH]: Add full matrix results on LERF-OVS" && git push && git tag eval-done && git push --tags
    ```
 
 ## Checklist

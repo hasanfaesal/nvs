@@ -57,7 +57,7 @@ Expected: …
 ## Done when
 - [ ] Laptop check passes
 - [ ] Lab check output matches "Expected"
-- [ ] Commit `T-XXX: …` pushed; status set to `done` in `tasks/README.md`
+- [ ] Commit `[TAG]: …` (AGENTS.md §7) pushed; status set to `done` in `tasks/README.md`
 
 ## Findings / Blockers
 <!-- The implementer writes here: VERIFY results, surprises, anything that blocks. -->

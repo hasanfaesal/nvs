@@ -15,7 +15,7 @@
 2. Add both scenes to `configs/experiments.yaml` → `scenes`.
 3. Run `python -m experiments.run_matrix --only-scene desk_01`, then `--only-scene shelf_01`, in tmux (~20–25 GPU-h). `run_matrix` re-runs `evaluation.aggregate` at the end.
 4. **Demo queries:** pick 3 good queries per scene, put them in `scenes.yaml`, and re-run `export --force`.
-5. Commit: `git add results configs && git commit -m "T-C04: custom scenes results" && git push`.
+5. Commit: `git add results configs && git commit -m "[ENH]: Add custom scene results" && git push`.
 
 ## Done when
 - [ ] Both custom scenes in `summary.json` (core variants × 3 seeds, the ablation, the baseline, MRC)

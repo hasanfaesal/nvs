@@ -241,4 +241,4 @@ There is no authentication: only your tailnet can reach the server (NFR-7).
 2. **One GPU job at a time.** Stop the demo server before training.
 3. Check `nvidia-smi` before starting a stage. Another user's process can make VRAM numbers meaningless.
 4. Never delete `scenes/<id>/logs/stages.jsonl`; the systems table is built from it.
-5. After every successful full run, commit `results/` from the lab: `git add results && git commit -m "results: <scene> <variant>" && git push`. Then pull on the laptop.
+5. After every successful full run, commit `results/` from the lab: `git add results && git commit -m "[ENH]: Add <scene> <variant> results" && git push`. Then pull on the laptop.

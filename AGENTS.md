@@ -81,16 +81,21 @@ uvicorn server.app:app --host 127.0.0.1 --port 8000
 - **Errors:** raise with a message that says what to check (e.g. `"split.json names not found in COLMAP model: frame_00012.jpg — re-run split"`).
 
 ## 7. Git
-- Commit message: `T-XXX: <imperative summary>` (fixes: `T-XXX: fix <what>`). Never force-push. Never rewrite pushed history.
+- Never force-push. Never rewrite pushed history.
+- **Commit messages:**
+  - Subject: `[TAG]: <Imperative summary>`. Capitalized imperative verb (`Add`, `Implement`, `Fix`, `Wire`, `Update`), no trailing period, under 72 characters. No card id (`T-XXX`) anywhere in the message.
+  - Tags: `[ENH]` features/capabilities · `[FIX]` bug fixes · `[DOCS]` docs, runbooks, specs, task cards · `[DB]` schemas/store layer · `[CFG]` config files, loaders, env parsing · `[DEP]` dependencies, forks, submodule bumps · `[BLD]` build system, toolchain, project skeleton.
+  - Body (multi-file or non-trivial changes): blank line, then `- ` bullets with imperative verbs: what was added/changed, why edge cases are guarded, which tests were added.
+  - Example: `[ENH]: Add split builder for train/test frame lists`, body `- Add pipeline/split.py …` / `- Add tests/test_split.py covering hold-out spacing`.
 - No "Co-Authored-By" or "Generated with …" trailers in commits or PRs.
 - **Submodule recipe** (FORK-patch cards only):
   ```bash
   cd third_party/<repo>
   git checkout promptsplat                     # never commit on a detached HEAD
-  git add <files> && git commit -m "T-XXX: <summary>"
+  git add <files> && git commit -m "[ENH]: <Summary>"
   git push origin promptsplat
   cd ../..
-  git add third_party/<repo> && git commit -m "T-XXX: bump <repo>"
+  git add third_party/<repo> && git commit -m "[DEP]: Bump <repo> fork"
   ```
 
 ## 8. Facts you must not re-derive

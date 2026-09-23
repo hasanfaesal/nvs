@@ -61,7 +61,7 @@ flowchart TB
    <lab check commands from the card>
    ```
    If a card changed `third_party/gsplat` or the SAGA CUDA code, rebuild it as the card says (e.g. `pip install -e third_party/gsplat --no-build-isolation`).
-7. **Pass:** set the card to `done` in `tasks/README.md`. Optionally paste the key output lines into the card's "Result" section. Commit `T-XXX: done`.
+7. **Pass:** set the card to `done` in `tasks/README.md`. Optionally paste the key output lines into the card's "Result" section. Commit `[DOCS]: Record <what> lab check results`.
 8. **Fail:** paste the output with **Prompt B**, in the same session if it still has context, otherwise a new one.
 9. **Two failed fixes for the same card:** use **Prompt C** with a stronger model. It either fixes the problem or splits the card into smaller ones.
 
@@ -132,7 +132,7 @@ cite 06-contracts.md sections and upstream sources precisely (repo, path, symbol
 
 ## 7. Git conventions
 
-- Commit messages: `T-XXX: <imperative summary>`, e.g. `T-A03: add split builder`. Fixes: `T-XXX: fix <what>`.
+- Commit messages: `[TAG]: <Imperative summary>`, e.g. `[ENH]: Add split builder`, `[FIX]: Fix <what>`. Full rules and tag list: `AGENTS.md` §7. No card ids in commits.
 - **Never** force-push; never rewrite pushed history.
 - **Never commit** `data/`, `scenes/`, `checkpoints/`, `*.pt`, `*.pth`, `*.ply`, `.venv/` or `node_modules/` (T-002 sets up `.gitignore`).
 - Tags at the gates: `phase-a-done`, `phase-b-done`, `eval-done`.
@@ -140,10 +140,10 @@ cite 06-contracts.md sections and upstream sources precisely (repo, path, symbol
   ```bash
   cd third_party/<repo>
   git checkout promptsplat            # never commit on a detached HEAD
-  git add <files> && git commit -m "T-XXX: <summary>"
+  git add <files> && git commit -m "[ENH]: <Summary>"
   git push origin promptsplat
   cd ../..
-  git add third_party/<repo> && git commit -m "T-XXX: bump <repo>"
+  git add third_party/<repo> && git commit -m "[DEP]: Bump <repo> fork"
   ```
   Then list the change in `05-codebase-map.md` §4 (patch registry) if it's a new patch.
 

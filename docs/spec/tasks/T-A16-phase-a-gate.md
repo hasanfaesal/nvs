@@ -49,7 +49,7 @@ All 4 LERF-OVS scenes are trained at full length, exported, measured and viewabl
 6. Laptop: `pytest -q` passes.
 7. Commit the results and tag:
    ```bash
-   git add results && git commit -m "T-A16: Phase A results" && git push
+   git add results && git commit -m "[ENH]: Add Phase A gate results" && git push
    git tag phase-a-done && git push --tags
    ```
 

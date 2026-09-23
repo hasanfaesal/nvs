@@ -58,7 +58,7 @@ Text and click queries work in the browser for every LERF-OVS scene and every co
    EOF
    ```
 6. **VRAM:** re-run the T-A16 VRAM snippet. Every Phase B stage must be < 14 GB.
-7. **Commit and tag:** `git add results configs/scenes.yaml docs/figures/phaseb && git commit -m "T-B17: Phase B gate" && git push && git tag phase-b-done && git push --tags`.
+7. **Commit and tag:** `git add results configs/scenes.yaml docs/figures/phaseb && git commit -m "[ENH]: Add Phase B gate results" && git push && git tag phase-b-done && git push --tags`.
 
 ## Checklist
 - [ ] 4 scenes × 3 variants × seed 0 have `query_index.pt`

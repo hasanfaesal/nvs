@@ -98,7 +98,7 @@ bash scripts/download_checkpoints.sh
 conda activate ps
 pip freeze > env/lab-lock.txt
 conda env export -n colmap > env/colmap-lock.yml
-git add env/lab-lock.txt env/colmap-lock.yml && git commit -m "T-004: lab env lock files" && git push
+git add env/lab-lock.txt env/colmap-lock.yml && git commit -m "[CFG]: Add lab env lock files" && git push
 ```
 Expected:
 - `torch 2.9.1+cu128 | cuda 12.8 | gpu NVIDIA RTX A4000`;

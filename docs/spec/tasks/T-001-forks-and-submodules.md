@@ -76,7 +76,7 @@ SAGA has its own nested submodules with **SSH** URLs (`third_party/segment-anyth
 6. Commit and push:
    ```bash
    git add .gitmodules third_party THIRD_PARTY.md
-   git commit -m "T-001: add SAGA, gsplat, AutoSeg-SAM2 forks as submodules; THIRD_PARTY.md"
+   git commit -m "[DEP]: Add SAGA, gsplat and AutoSeg-SAM2 forks as submodules"
    git push
    ```
 
