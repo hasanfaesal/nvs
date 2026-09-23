@@ -101,3 +101,8 @@ Expected: `info` lists 4 scenes and nvidia-smi found; the VRAM value is an integ
 - [ ] Tests pass on the laptop; `info` works on both machines
 
 ## Findings / Blockers
+- Laptop check passed on 2026-09-24: `pytest -q` green, `python -m pipeline info` lists the 4 scenes, `nvidia-smi: missing`.
+- `configs/scenes.yaml` is copied verbatim from C6.2, including its `# VERIFY (T-007)` comment. T-007's Findings confirm the paths `data/raw/lerf_ovs/<scene>` and `data/raw/lerf_ovs/label/<scene>` are correct, so no values changed.
+- ASSUMPTION: relative `paths.*` entries are resolved against the repo root; `PS_SCENES_DIR` / `PS_RESULTS_DIR` are used as given.
+- ASSUMPTION: `seconds` in the stage log is rounded to 0.1 s (matches the C15 example `1512.3`).
+- VERIFY on lab: `vram_used_mb()` returns an int on the A4000 and `stages.jsonl` gets non-null `peak_vram_mb`.

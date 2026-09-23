@@ -20,7 +20,7 @@ Statuses: `todo` → `doing` → `review` → `lab` → `done` · `blocked` (wri
 | T-005 | SAGA port spike (timebox 3 days) | M | T-004, T-007 | todo |
 | T-006 | Fallback legacy `saga` env (only if T-005 = FALLBACK) | S | T-005, T-A01 | todo |
 | T-007 | Download LERF-OVS and check its layout | S/H | T-002, T-003 | lab |
-| T-A01 | Config loader, CLI skeleton, `run_stage` | S | T-002 | todo |
+| T-A01 | Config loader, CLI skeleton, `run_stage` | S | T-002 | lab |
 | T-A02 | COLMAP reader + ingest posed datasets | S | T-A01, T-007 | todo |
 | T-A03 | Split builder (`split.json`) | S | T-A02 | todo |
 | T-A04 | gsplat fork patch: `split_file` | S | T-001 | todo |
