@@ -7,6 +7,7 @@ from pipeline.config import load_config, repo_root, scenes_root
 from pipeline.ingest import ingest_colmap, ingest_from_config
 from pipeline.run_stage import git_sha
 from pipeline.split import build_split
+from pipeline.train_3dgs import train
 
 
 def cmd_info(args: argparse.Namespace) -> int:
@@ -32,7 +33,12 @@ def cmd_split(args: argparse.Namespace) -> int:
     return 0
 
 
-def build_parser() -> argparse.ArgumentParser:
+def cmd_train3dgs(args: argparse.Namespace) -> int:
+    train(args.scene, args.max_steps, args.force)
+    return 0
+
+
+def build_parser()-> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m pipeline")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("info", help="print paths, scenes, GPU and git info").set_defaults(func=cmd_info)
@@ -47,6 +53,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--scene", required=True)
     p.add_argument("--force", action="store_true", help="overwrite an existing split.json")
     p.set_defaults(func=cmd_split)
+    p = sub.add_parser("train3dgs", help="gsplat MCMC training into scenes/<id>/3dgs/ (C3)")
+    p.add_argument("--scene", required=True)
+    p.add_argument("--max-steps", type=int, help="smoke run; default: gsplat.max_steps in configs/pipeline.yaml")
+    p.add_argument("--force", action="store_true", help="delete 3dgs/ and retrain")
+    p.set_defaults(func=cmd_train3dgs)
     return parser
 
 
