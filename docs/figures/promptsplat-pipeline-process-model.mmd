@@ -1,0 +1,13 @@
+flowchart TD
+    classDef input fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef step fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a;
+    classDef runtime fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#581c87;
+    classDef final fill:#ecfdf5,stroke:#16a34a,stroke-width:2px,color:#14532d;
+
+    Input["Phone Video & Frames"]:::input
+    --> S1["1. Camera Tracking (COLMAP)<br/>Recovers camera poses & sparse geometry"]:::step
+    --> S2["2. 3D Scene Reconstruction (3DGS)<br/>Optimizes photorealistic RGB Gaussians"]:::step
+    --> S3["3. Multi-View Segmentation (SAM 2)<br/>Tracks and propagates consistent 2D masks"]:::step
+    --> S4["4. Semantic Grounding (SAGA + CLIP)<br/>Trains 32-D Gaussian affinities & caches CLIP visual embeddings"]:::step
+    --> S5["5. Interactive Runtime (FastAPI + Three.js)<br/>Matches Text/Click query to target Gaussians"]:::runtime
+    --> Out["View-Consistent 3D Highlight, Recolor, or Isolation"]:::final

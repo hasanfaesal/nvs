@@ -1,0 +1,225 @@
+\documentclass[border=10pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{amsmath,amssymb}
+
+\usetikzlibrary{calc, positioning, arrows.meta, shapes.geometric, fit, backgrounds, decorations.pathmorphing}
+
+% ── Modern A* Conference Palette ──
+\definecolor{colImgBg}{RGB}{245,247,250}
+\definecolor{colImgBorder}{RGB}{185,195,208}
+\definecolor{colGSBg}{RGB}{254,243,235}
+\definecolor{colGSBorder}{RGB}{245,166,118}
+\definecolor{colSAMBg}{RGB}{254,249,231}
+\definecolor{colSAMBorder}{RGB}{236,199,86}
+\definecolor{colSAGABg}{RGB}{244,238,252}
+\definecolor{colSAGABorder}{RGB}{186,155,229}
+\definecolor{colCLIPBg}{RGB}{236,248,239}
+\definecolor{colCLIPBorder}{RGB}{134,204,153}
+\definecolor{colCubeEdge}{RGB}{130,165,205}
+\definecolor{colCubeFill}{RGB}{234,244,254}
+
+\definecolor{colFire}{RGB}{225,85,40}
+\definecolor{colSnow}{RGB}{70,140,205}
+\definecolor{colText}{RGB}{35,45,60}
+\definecolor{colSubText}{RGB}{100,115,130}
+\definecolor{colArr}{RGB}{95,110,130}
+
+\definecolor{colHi}{RGB}{235,90,50}
+\definecolor{colEll}{RGB}{90,135,215}
+
+\begin{document}
+\sffamily
+\begin{tikzpicture}[
+    >=Latex,
+    node distance=1.6cm and 1.8cm,
+    font=\sffamily,
+    block/.style={
+        rounded corners=6pt,
+        line width=0.9pt,
+        minimum height=1.35cm,
+        minimum width=2.4cm,
+        align=center,
+        inner sep=6pt,
+        drop shadow/.style={},
+        text=colText
+    },
+    arr/.style={->, >=Latex, line width=1.1pt, color=colArr},
+    arrDashed/.style={->, >=Latex, line width=1.0pt, dashed, color=colArr},
+    lbl/.style={font=\sffamily\scriptsize\itshape, text=colSubText, fill=white, inner sep=1.5pt, rounded corners=2pt}
+]
+
+% ════════════════════════════════════════════
+% 1. INPUT: Multi-view images (Perspective Fan)
+% ════════════════════════════════════════════
+\begin{scope}[shift={(0, 0)}]
+    % Frame 3 (Back)
+    \fill[colImgBg, draw=colImgBorder, rounded corners=3pt, line width=0.6pt]
+        (0.35, 0.35) rectangle ++(1.5, 1.15);
+    \draw[colImgBorder!80, line width=0.4pt] (0.45, 1.2) -- (1.5, 1.2);
+    \draw[colImgBorder!80, line width=0.4pt] (0.45, 1.0) -- (1.25, 1.0);
+
+    % Frame 2 (Middle)
+    \fill[colImgBg, draw=colImgBorder, rounded corners=3pt, line width=0.6pt]
+        (0.18, 0.18) rectangle ++(1.5, 1.15);
+    \draw[colImgBorder!80, line width=0.4pt] (0.28, 1.05) -- (1.35, 1.05);
+    \draw[colImgBorder!80, line width=0.4pt] (0.28, 0.85) -- (1.1, 0.85);
+
+    % Frame 1 (Front)
+    \fill[white, draw=colImgBorder!80!black, rounded corners=3pt, line width=0.8pt]
+        (0, 0) rectangle ++(1.5, 1.15);
+    % Stylized scene contents in front frame
+    \fill[colEll!25, rounded corners=1.5pt] (0.15, 0.15) rectangle (0.65, 0.65);
+    \fill[colHi!40, rounded corners=1.5pt] (0.8, 0.15) rectangle (1.35, 0.85);
+    \draw[colText!30, line width=0.5pt] (0.15, 0.95) -- (1.35, 0.95);
+
+    % Label
+    \node[below, font=\sffamily\bfseries\footnotesize, text=colText] at (0.75, -0.2)
+        {Multi-view};
+    \node[below, font=\sffamily\scriptsize, text=colSubText] at (0.75, -0.55)
+        {Images};
+\end{scope}
+
+\coordinate (imgOut) at (2.0, 0.58);
+
+% ════════════════════════════════════════════
+% 2. 3DGS & SAM 2 Blocks (Parallel Branches)
+% ════════════════════════════════════════════
+% 3DGS (Top: Appearance & Geometry)
+\node[block, fill=colGSBg, draw=colGSBorder]
+    (gs) at (4.7, 1.45) {
+        \textbf{3DGS} \textcolor{colFire}{\footnotesize\faFire}\\[-1pt]
+        {\scriptsize\textcolor{colSubText}{Base Scene Reconstruct}}
+    };
+
+% SAM 2 (Bottom: 2D Multi-scale Grouping)
+\node[block, fill=colSAMBg, draw=colSAMBorder]
+    (sam) at (4.7, -0.3) {
+        \textbf{SAM 2} \textcolor{colSnow}{\footnotesize\faSnowflake}\\[-1pt]
+        {\scriptsize\textcolor{colSubText}{Temporal Pseudo-labeling}}
+    };
+
+% ════════════════════════════════════════════
+% 3. SAGA Block (Contrastive 3D Optimization)
+% ════════════════════════════════════════════
+\node[block, fill=colSAGABg, draw=colSAGABorder,
+      minimum height=2.2cm, minimum width=2.5cm]
+    (saga) at (8.7, 0.58) {
+        \textbf{SAGA} \textcolor{colFire}{\footnotesize\faFire}\\[2pt]
+        {\scriptsize\textcolor{colSubText}{Contrastive 3D}}\\[-1pt]
+        {\scriptsize\textcolor{colSubText}{Affinity Field}}
+    };
+
+% ════════════════════════════════════════════
+% 4. CLIP Block (Language Grounding / Query)
+% ════════════════════════════════════════════
+\node[block, fill=colCLIPBg, draw=colCLIPBorder, minimum width=2.4cm]
+    (clip) at (8.7, -1.8) {
+        \textbf{CLIP} \textcolor{colSnow}{\footnotesize\faSnowflake}\\[-1pt]
+        {\scriptsize\textcolor{colSubText}{Vision-Language}}
+    };
+
+% ════════════════════════════════════════════
+% 5. OUTPUT: 3D Semantic Gaussians (Isometric)
+% ════════════════════════════════════════════
+\begin{scope}[shift={(12.2, -0.65)}]
+    % Perspective projection parameters
+    \def\cx{2.2} \def\cy{2.2} \def\dx{0.75} \def\dy{0.65}
+
+    % Back bounding plane
+    \draw[colCubeEdge!50, dashed, line width=0.5pt]
+        (\dx, \dy) -- (\cx+\dx, \dy)
+        (\dx, \dy) -- (\dx, \cy+\dy);
+
+    % Floor plane
+    \fill[colCubeFill!60, opacity=0.4] (0, 0) -- (\cx, 0) -- (\cx+\dx, \dy) -- (\dx, \dy) -- cycle;
+    \draw[colCubeEdge, line width=0.7pt] (0, 0) -- (\cx, 0) -- (\cx+\dx, \dy);
+
+    % Left & Right walls
+    \fill[colCubeFill!30, opacity=0.3] (0, 0) -- (\dx, \dy) -- (\dx, \cy+\dy) -- (0, \cy) -- cycle;
+    \draw[colCubeEdge, line width=0.7pt] (0, 0) -- (0, \cy);
+    \draw[colCubeEdge, line width=0.7pt] (\cx, 0) -- (\cx, \cy);
+    \draw[colCubeEdge, line width=0.7pt] (\cx+\dx, \dy) -- (\cx+\dx, \cy+\dy);
+
+    % Internal Unselected Gaussians (Soft Blue Anisotropic Ellipses)
+    \fill[colEll, opacity=0.45] (0.6, 0.7) ellipse [x radius=0.22, y radius=0.13, rotate=25];
+    \fill[colEll, opacity=0.40] (1.9, 0.5) ellipse [x radius=0.16, y radius=0.22, rotate=-15];
+    \fill[colEll, opacity=0.50] (0.8, 1.8) ellipse [x radius=0.24, y radius=0.14, rotate=40];
+    \fill[colEll, opacity=0.45] (2.1, 1.9) ellipse [x radius=0.18, y radius=0.25, rotate=-30];
+    \fill[colEll, opacity=0.35] (1.3, 2.2) ellipse [x radius=0.20, y radius=0.11, rotate=10];
+    \fill[colEll, opacity=0.40] (0.5, 1.4) ellipse [x radius=0.13, y radius=0.18, rotate=-45];
+    \fill[colEll, opacity=0.45] (2.4, 1.1) ellipse [x radius=0.15, y radius=0.20, rotate=15];
+
+    % Highlighted / Selected Gaussians ("red chair" cluster in Vibrant Orange)
+    \fill[colHi, opacity=0.85] (1.35, 0.95) ellipse [x radius=0.26, y radius=0.16, rotate=20];
+    \fill[colHi, opacity=0.90] (1.65, 1.35) ellipse [x radius=0.21, y radius=0.27, rotate=-20];
+    \fill[colHi, opacity=0.80] (1.10, 1.30) ellipse [x radius=0.19, y radius=0.15, rotate=35];
+    \fill[colHi, opacity=0.85] (1.40, 1.65) ellipse [x radius=0.22, y radius=0.17, rotate=-10];
+
+    % Front Bounding Box Edges
+    \draw[colCubeEdge, line width=0.8pt]
+        (0, \cy) -- (\cx, \cy) -- (\cx+\dx, \cy+\dy) -- (\dx, \cy+\dy) -- cycle;
+    \draw[colCubeEdge, line width=0.8pt]
+        (0, 0) -- (\cx, 0) -- (\cx, \cy) -- (0, \cy) -- cycle;
+
+    % Caption
+    \node[below, font=\sffamily\bfseries\footnotesize, text=colText] at (1.45, -0.2)
+        {Semantic 3D Gaussians};
+    \node[below, font=\sffamily\scriptsize, text=colSubText] at (1.45, -0.55)
+        {(Grouped \& Language-Grounded)};
+\end{scope}
+
+\coordinate (cubeIn) at (12.2, 0.58);
+
+% ════════════════════════════════════════════
+% 6. PIPELINE ROUTING (Straight Clean Vectors)
+% ════════════════════════════════════════════
+
+% Images branch to 3DGS
+\draw[arr] (imgOut) to[out=25, in=180] 
+    node[lbl, above=2pt, pos=0.5] {poses} (gs.west);
+
+% Images branch to SAM 2
+\draw[arr] (imgOut) to[out=-25, in=180] (sam.west);
+
+% 3DGS to SAGA (RGB Gaussians)
+\draw[arr] (gs.east) to[out=0, in=155]
+    node[lbl, above=2pt, pos=0.5] {RGB Gaussians} (saga.150);
+
+% SAM 2 to SAGA (Masks)
+\draw[arr] (sam.east) to[out=0, in=-155]
+    node[lbl, below=2pt, pos=0.5] {masks} (saga.-150);
+
+% SAM 2 to CLIP (Mask Crops / Embeddings)
+\draw[arr] (sam.south) to[out=-90, in=180]
+    node[lbl, below=2pt, pos=0.4] {regions} (clip.west);
+
+% SAGA to 3D Output Cube (32-D Affinity)
+\draw[arr] (saga.east) -- (cubeIn)
+    node[lbl, above=2pt, midway] {$f_i \!\in\! \mathbb{R}^{32}$};
+
+% Inference: Text Query to CLIP
+\node[font=\sffamily\footnotesize, text=colHi!90!black, left=1.2cm of clip, yshift=-0.55cm]
+    (txt) {``\textit{red chair}''};
+\draw[arrDashed] (txt.east) to[out=0, in=-150]
+    node[lbl, below=1pt, pos=0.4] {query} (clip.-150);
+
+% Inference: CLIP to SAGA / Target Selection
+\draw[arrDashed] (clip.north) -- (saga.south)
+    node[lbl, right=2pt, midway] {similarity};
+
+% ════════════════════════════════════════════
+% 7. Minimal Academic Legend
+% ════════════════════════════════════════════
+\node[font=\sffamily\scriptsize, text=colSubText, anchor=north east]
+    at (15.5, -1.8) {%
+        \textcolor{colFire}{\faFire}\;\textsf{trainable}\quad
+        \textcolor{colSnow}{\faSnowflake}\;\textsf{frozen}\quad
+        \textcolor{colHi}{\rule{6pt}{6pt}}\;\textsf{target}\quad
+        \textcolor{colEll}{\rule{6pt}{6pt}}\;\textsf{context}%
+    };
+
+\end{tikzpicture}
+\end{document}
+

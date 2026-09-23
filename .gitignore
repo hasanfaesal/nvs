@@ -1,0 +1,7 @@
+# Logs and temp files
+*.log
+texput.log
+
+# Tool caches
+.superpowers/
+.firecrawl/
