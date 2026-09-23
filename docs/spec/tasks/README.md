@@ -13,7 +13,7 @@ Statuses: `todo` → `doing` → `review` → `lab` → `done` · `blocked` (wri
 
 | ID | Title | Tier | Depends on | Status |
 |---|---|---|---|---|
-| T-001 | Fork upstream repos, submodules, THIRD_PARTY.md | H | – | todo |
+| T-001 | Fork upstream repos, submodules, THIRD_PARTY.md | H | – | lab |
 | T-002 | Code skeleton, laptop env, test runner | S | T-001 | todo |
 | T-003 | Lab PC setup (WSL2, CUDA, conda, Tailscale) | H | – | todo |
 | T-004 | Lab env files (conda `ps`, COLMAP env, checkpoints) | S | T-001, T-003 | todo |

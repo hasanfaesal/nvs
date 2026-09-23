@@ -1,0 +1,12 @@
+[submodule "third_party/SegAnyGAussians"]
+	path = third_party/SegAnyGAussians
+	url = https://github.com/hasanfaesal/SegAnyGAussians.git
+	branch = promptsplat
+[submodule "third_party/gsplat"]
+	path = third_party/gsplat
+	url = https://github.com/hasanfaesal/gsplat.git
+	branch = promptsplat
+[submodule "third_party/AutoSeg-SAM2"]
+	path = third_party/AutoSeg-SAM2
+	url = https://github.com/hasanfaesal/AutoSeg-SAM2.git
+	branch = promptsplat

@@ -97,3 +97,10 @@ Done in T-003: `git clone --recurse-submodules https://github.com/hasanfaesal/nv
 - [ ] `THIRD_PARTY.md` committed with the SHAs and licenses
 
 ## Findings / Blockers
+- Done 2026-09-24 with `gh` (account hasanfaesal). Global `url."https://github.com/".insteadOf git@github.com:` set on the laptop; the lab PC still needs it (T-003).
+- Pins: SAGA `v2` = `2d4c5d7`, gsplat `main` = `512d366` (describes as `v1.5.3-674-g512d366b`), AutoSeg-SAM2 default branch `main` = `5814307`. Full SHAs in `THIRD_PARTY.md`.
+- Licenses confirmed from the LICENSE files: SAGA Apache-2.0 (its `submodules/diff-gaussian-rasterization/LICENSE.md` carries the Inria notice), gsplat Apache-2.0, AutoSeg-SAM2 MIT. OpenCLIP and COLMAP read via the GitHub API (MIT-style and BSD-3).
+- **LangSplat's LICENSE.md is the Inria/MPII Gaussian-Splatting license (non-commercial research only).** Copying ~30 lines is fine for an FYP. If that is a problem, re-implement them instead (as `05-codebase-map.md` §2 says). Final call at T-E01.
+- SAGA's nested submodules (`kmeans_pytorch`, `segment-anything`) still use SSH URLs in the fork's `.gitmodules`. The insteadOf rewrite handles this; P-SAGA-1 (T-005) switches them to HTTPS.
+- No `--recursive` on the laptop. `.git/modules` is about 227 MB.
+- Not run: `git push` of the main repo (the runner does it). VERIFY on lab (T-003): `git clone --recurse-submodules` succeeds.
