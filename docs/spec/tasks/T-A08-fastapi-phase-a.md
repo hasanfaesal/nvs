@@ -84,3 +84,8 @@ Expected: health JSON; the ramen scene listed; the asset HEAD returns 200 with a
 - [ ] Tests pass; the lab curl checks pass
 
 ## Findings / Blockers
+- ASSUMPTION: `scene_id` in `/api/scenes` items is the scene directory name (the id the routes accept), not re-read from the manifest; for exported scenes they are equal (C3, C5).
+- ASSUMPTION: `discover_variants` is implemented now (Phase A scenes have no `variants/`, so it returns `[]`); seed dirs without an integer suffix are ignored.
+- Config is loaded once at import (`CFG`); `scenes_root(CFG)` still honours `PS_SCENES_DIR` on every call, so tests set it with `monkeypatch`.
+- `..%2Fetc` never reaches the filesystem: the id is looked up in the discovered dict first, so any id not found → 404.
+- Laptop: `pytest -q tests/test_app.py tests/test_imports.py` passes; full `pytest -q` green. Starlette warns that `httpx` in `TestClient` is deprecated (harmless, no new dependency added).
