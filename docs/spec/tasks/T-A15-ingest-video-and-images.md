@@ -75,3 +75,8 @@ Expected: ≥ 80% of frames registered; the scene opens in the browser (`/scene/
 - [ ] Tests pass; one real phone video goes end to end
 
 ## Findings / Blockers
+- Laptop check passes (`pytest -q tests/test_ingest.py tests/test_imports.py`; full `pytest -q` green).
+- ASSUMPTION: `--matcher` only affects `--images` (default `exhaustive`); `ingest_video` has no matcher parameter per the Interface, so video always uses `sequential`. `input_type: images` in `configs/scenes.yaml` uses `exhaustive` (no new config key).
+- ASSUMPTION: photos are always re-encoded as JPEG (`frames.jpeg_quality`), so `.png` inputs become `frame_XXXXX.jpg` too; only `.jpg/.jpeg/.png` files are taken. `cv2.imread` applies the EXIF orientation, so portrait phone photos come out upright.
+- Shared helper `_fresh_source` also clears a half-built `source/` (no `sparse/0`) from a failed run, so a re-run never mixes stale frames in `source/input/`. `ingest_colmap` now uses it too (same skip/force behaviour).
+- VERIFY on lab: ≥ 80% of the phone video's frames register (run_colmap raises otherwise) and the scene opens at `/scene/test_video`.
