@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 
 from pipeline.config import load_config, repo_root, scenes_root
+from pipeline.export_web import export
 from pipeline.ingest import ingest_colmap, ingest_from_config
 from pipeline.run_stage import git_sha
 from pipeline.split import build_split
@@ -38,6 +39,11 @@ def cmd_train3dgs(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_export(args: argparse.Namespace) -> int:
+    export(args.scene, args.force)
+    return 0
+
+
 def build_parser()-> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m pipeline")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -58,6 +64,10 @@ def build_parser()-> argparse.ArgumentParser:
     p.add_argument("--max-steps", type=int, help="smoke run; default: gsplat.max_steps in configs/pipeline.yaml")
     p.add_argument("--force", action="store_true", help="delete 3dgs/ and retrain")
     p.set_defaults(func=cmd_train3dgs)
+    p = sub.add_parser("export", help="write web/scene.ply, web/manifest.json and results/<id>/phase_a.json (C5, C14.1)")
+    p.add_argument("--scene", required=True)
+    p.add_argument("--force", action="store_true", help="overwrite an existing export")
+    p.set_defaults(func=cmd_export)
     return parser
 
 
