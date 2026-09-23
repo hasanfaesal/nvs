@@ -139,3 +139,6 @@ None (the lab env is T-004).
 - [ ] `git status` shows no `.venv` files after running it
 
 ## Findings / Blockers
+- 2026-09-24 laptop check passed: `torch 2.9.1+cpu cuda: False`, `pytest` → `1 passed`, `.venv` = 1.3 GB, `git status` shows no `.venv` files.
+- Resolved versions of note: pycolmap 4.2.0, scikit-learn 1.7.2, scipy 1.15.3, fastapi on starlette 1.7.0, pytest 9.1.1.
+- ASSUMPTION: package `__init__.py` files each hold a one-line docstring (AGENTS.md §6 wants a docstring as the first line of each module).
