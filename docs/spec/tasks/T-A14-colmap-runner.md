@@ -95,3 +95,10 @@ Expected: ≥ 95% registered; SAGA's loader reads the COLMAP 4.2 output. If SAGA
 - [ ] Tests pass; the lab run registers ≥ 95% and SAGA reads the model
 
 ## Findings / Blockers
+- Upstream `convert.py` @ `2d4c5d7` still uses the pre-3.13 names `--SiftExtraction.use_gpu` / `--SiftMatching.use_gpu`, and it always matches exhaustively and always undistorts `sparse/0`. The copy changes all three, as the card asks.
+- ASSUMPTION: `build_commands` reads the camera model from `colmap.camera_model`, and `run_colmap` starts with `colmap.mapper` from `configs/pipeline.yaml`, not hard-coded values. Both still default to `OPENCV` / `mapper`. The fallback to `global_mapper` runs only when the first mapper was `mapper`.
+- ASSUMPTION: `run_colmap` deletes `source/distorted/sparse/` and `source/sparse/` before it runs. Old sub-models from an earlier run (or a `force` run) could otherwise win `best_model`, and the `.bin` move could mix old and new files. The feature database (`distorted/database.db`) is kept; COLMAP skips images and pairs it has already processed.
+- The registered ratio counts every file in `source/input/`, so that folder must contain only frames.
+- Added one more test beyond the card's list: a mapper run that registers 50% falls back to `global_mapper`, then undistorts, then moves the `.bin` files into `sparse/0`, and the next call skips.
+- VERIFY on lab: COLMAP 4.x accepts `--FeatureExtraction.use_gpu`, `--FeatureMatching.use_gpu`, and `--Mapper.ba_global_function_tolerance`. Also check that `global_mapper` takes the same `--database_path/--image_path/--output_path` arguments and writes numbered sub-models under `distorted/sparse/`. (The COLMAP CLI docs were not fetched in this unattended run.)
+- VERIFY on lab: SAGA's `scene/colmap_loader.py` reads the COLMAP 4.x `sparse/0/*.bin` (the card's lab check).
