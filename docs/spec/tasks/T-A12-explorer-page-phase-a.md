@@ -47,3 +47,9 @@ Build and serve as in T-A10, then open `http://localhost:8000/scene/ramen` in th
 - [ ] The fixture looks right on the laptop; a real scene looks right on the lab PC
 
 ## Findings / Blockers
+- Laptop check passes: `npx nuxi generate` builds; `npx nuxi typecheck` and `npx eslint app/pages/scene` are clean.
+- Full height uses Nuxt UI's `--ui-header-height` variable (4rem, from `@nuxt/ui` `UHeader`/`UMain` theme): `h-[calc(100vh-var(--ui-header-height))]`.
+- `viewer?.fps` works because Vue unwraps refs in a component's `defineExpose` object when read through a template ref.
+- ASSUMPTION: "MB" = `bytes / 1e6`, shown with 0 decimals. Missing metrics show "–" (the fixture may have no `metrics_3dgs`).
+- ASSUMPTION: a viewer `error` event replaces the loading overlay with the error message (the card says "load progress or errors").
+- Manual fixture check (red sphere left, green cube right, floor below, FPS updating) was not run: unattended session. VERIFY on laptop/lab.

@@ -31,7 +31,7 @@ Statuses: `todo` → `doing` → `review` → `lab` → `done` · `blocked` (wri
 | T-A09 | Fixture scene for laptop dev | S | T-A06 | done |
 | T-A10 | Nuxt scaffold + scene list | S | T-A08, T-A09 | lab |
 | T-A11 | `SplatViewer` (Spark) | S | T-A10 | lab |
-| T-A12 | Explorer page, Phase A | S | T-A11 | todo |
+| T-A12 | Explorer page, Phase A | S | T-A11 | lab |
 | T-A13 | Frames + blur filter | S | T-A01 | todo |
 | T-A14 | COLMAP runner | S | T-A01, T-A02, T-004 | todo |
 | T-A15 | Ingest video / photos | S | T-A13, T-A14 | todo |
