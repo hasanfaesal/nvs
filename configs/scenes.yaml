@@ -1,0 +1,11 @@
+scenes:
+  figurines:
+    title: Figurines (LERF-OVS)
+    dataset: lerf_ovs
+    input_type: colmap                 # colmap | images | video
+    input: data/raw/lerf_ovs/figurines # VERIFY (T-007): exact folder names after unzip
+    labels: data/raw/lerf_ovs/label/figurines
+    demo_queries: []                   # filled at T-B17 from label categories
+  ramen:        {title: Ramen (LERF-OVS), dataset: lerf_ovs, input_type: colmap, input: data/raw/lerf_ovs/ramen, labels: data/raw/lerf_ovs/label/ramen, demo_queries: []}
+  waldo_kitchen: {title: Waldo kitchen (LERF-OVS), dataset: lerf_ovs, input_type: colmap, input: data/raw/lerf_ovs/waldo_kitchen, labels: data/raw/lerf_ovs/label/waldo_kitchen, demo_queries: []}
+  teatime:      {title: Teatime (LERF-OVS), dataset: lerf_ovs, input_type: colmap, input: data/raw/lerf_ovs/teatime, labels: data/raw/lerf_ovs/label/teatime, demo_queries: []}

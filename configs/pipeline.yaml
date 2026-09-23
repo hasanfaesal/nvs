@@ -1,0 +1,66 @@
+paths:
+  scenes: scenes
+  data: data
+  checkpoints: checkpoints
+  results: results
+envs:
+  saga: null            # null = run SAGA scripts in the current env ("ps"); "saga" = conda run -n saga (T-006 fallback)
+  colmap_bin: ~/miniforge3/envs/colmap/bin/colmap   # expanduser() before use; COLMAP lives in its own env (T-004)
+split:
+  every: 8
+  outlier_factor: 10.0
+frames:
+  extract_fps: 6        # ffmpeg oversampling rate
+  keep_every: 2         # keep the sharpest frame of each window of 2 -> ~3 fps
+  min_sharpness_ratio: 0.3   # drop frames sharper than < 0.3 x median sharpness
+  max_side: 1600        # resize long side (px) before COLMAP; gsplat then uses data_factor 1
+  jpeg_quality: 95
+colmap:
+  camera_model: OPENCV
+  matcher: sequential   # video; "exhaustive" for unordered photos
+  mapper: mapper        # fallback: global_mapper
+gsplat:
+  data_factor: 1
+  max_steps: 30000
+  cap_max: 1000000
+  sh_degree: 3
+  lpips_net: alex
+masks:
+  downsample: 4         # all mask sources: segment at full res, resize masks by 1/4 (C7)
+  sam_ckpt: checkpoints/sam_vit_h_4b8939.pth
+  sam_arch: vit_h
+  sam2_cfg: configs/sam2.1/sam2.1_hiera_l.yaml      # name inside the sam2 package
+  sam2_ckpt: checkpoints/sam2.1_hiera_large.pt
+  amg:                  # identical for SAM v1 and SAM 2 AMG (fairness)
+    points_per_side: 32
+    pred_iou_thresh: 0.88
+    stability_score_thresh: 0.95
+    box_nms_thresh: 0.7
+    crop_n_layers: 0
+    min_mask_region_area: 100
+autoseg:
+  levels: [large, middle]
+  batch_size: 40
+  dedup_iou: 0.5
+saga:
+  iterations: 10000
+  num_sampled_rays: 1000
+  feature_dim: 32
+query_index:
+  anchor_frac: 0.01
+  identifier_thresh: 0.5
+  hdbscan_min_cluster_size: 30
+  hdbscan_epsilon: 0.25
+  max_masks: 20000      # if more masks, use every 2nd frame (recorded in query_index params)
+query:
+  clip_model: ViT-B-16
+  clip_pretrained: laion2b_s34b_b88k
+  cluster_keep_thresh: 0.45
+  text_threshold: 0.925   # = (0.85 + 1) / 2, SAGA notebook
+  click_threshold: 0.875  # = (0.75 + 1) / 2, SAGA notebook
+  render_max_side: 800
+  default_scale: 0.5      # click granularity slider default (quantile)
+server:
+  host: 127.0.0.1
+  port: 8000
+  default_variant: sam2_track_k10
