@@ -90,3 +90,8 @@ Expected:
 - [ ] Flags confirmed (Findings); smoke run OK
 
 ## Findings / Blockers
+- Flags checked against the fork source (`third_party/gsplat/examples/simple_trainer.py` @ 297addc, `Config` dataclass): `data_dir`, `data_factor`, `result_dir`, `split_file` (P-GS-1), `normalize_world_space: bool = True`, `max_steps`, `eval_steps`/`save_steps`/`ply_steps: List[int]`, `save_ply`, `disable_viewer`, `lpips_net: Literal["vgg","alex"]`; `MCMCStrategy.cap_max`. The CLI is `tyro.extras.overridable_config_cli` with subcommands `default` and `mcmc`. `benchmarks/mcmc.sh` already uses the underscore forms `--eval_steps`, `--disable_viewer`, `--data_factor` and the dash form `--strategy.cap-max`, so the mixed spellings work.
+- VERIFY on lab (round 1): `--no-normalize-world-space` is tyro's generated negative flag for a default-True bool; confirm it shows in `--help`.
+- gsplat also saves a ckpt and PLY at `step == max_steps - 1` on its own; the extra `--save_steps/--ply_steps` on smoke runs are harmless. Only `--eval_steps` is really needed there (else no `val_step*.json`).
+- ASSUMPTION: `--force` deletes `3dgs/` before retraining (like `ingest --force` deletes `source/`). Otherwise a stale `ckpt_29999` from an older run would beat a new 1999-step smoke run in `latest_step_file`.
+- `train` fails early with a clear message if `split.json` is missing (instead of crashing inside gsplat after CUDA start-up).
