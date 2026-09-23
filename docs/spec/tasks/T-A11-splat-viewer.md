@@ -83,6 +83,18 @@ Manual (you, laptop, fixture): used by the explorer page in T-A12. Look at it th
 Done in T-A12 and T-A16 (real scene in the lab browser).
 
 ## Done when
-- [ ] The build passes; the Findings record the verified Spark option names
+- [x] The build passes; the Findings record the verified Spark option names
 
 ## Findings / Blockers
+- Tag `v2.2.0` exists on sparkjsdev/spark (checked with `gh api`); examples read at that tag. `web/node_modules/@sparkjsdev/spark` is 2.2.0.
+- VERIFIED LoD option names (2.2.0 `dist/types` + `spark.module.js`):
+  - `SparkRendererOptions.enableLod?: boolean` (defaults to `true` in the source, so `false` must be passed).
+  - `SplatMeshOptions.enableLod?: boolean`: when `false`, `SplatMesh.update()` forces `context.enableLod = false` (the renderer never swaps in `lodSplats`).
+  - `SplatMeshOptions.lod?: boolean | "quality"` (+ `nonLod`, `lodAbove`, `lodScale`): `examples/nonlod` uses `lod: false` for the plain mesh. The component passes `lod: false` too, so no LoD tree is built.
+- VERIFIED `SplatMesh.initialized: Promise<SplatMesh>` and `SplatMesh.packedSplats?: PackedSplats` with `PackedSplats.numSplats: number`; `SplatMesh.dispose()` exists.
+- The upstream examples use `SparkControls` (nonlod) or `OrbitControls` from `three/addons/controls/OrbitControls.js` (interactivity); the component uses the latter, as the card says.
+- ASSUMPTION: FPS follows the card (frames in the last ≥ 500 ms window ÷ window), not 07-phase-a §11.3 (rolling mean of 60 intervals). Same purpose, card wins.
+- ASSUMPTION: `progress` emit (07 §11.3, optional) skipped; not in the card's interface.
+- `setup` errors (WebGL context, load failure) are caught and emitted as `error(message)`.
+- Laptop check: `npx nuxi generate` passes; `npx nuxi typecheck` and `npx eslint app/components/SplatViewer.client.vue` are clean; `pytest -q` green.
+- VERIFY on lab: the scene renders upright, orbits, and `ready.numSplats` equals the manifest's `num_gaussians` (T-A12/T-A16).
