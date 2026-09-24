@@ -77,7 +77,7 @@ You are implementing ONE task card in the PromptSplat repo.
 5. Follow the card's "Provenance": COPY upstream code where it says COPY (keep the Source header),
    WRAP where it says WRAP, write new code only where it says NEW.
 6. Run the "Laptop check" commands; fix until they pass. Show me their final output.
-7. Commit with message "<CARD-ID>: <short summary>". If you changed a fork under third_party/,
+7. Commit following AGENTS.md §7 (`[TAG]: <Imperative summary>`, no card id). If you changed a fork under third_party/,
    follow the submodule recipe in AGENTS.md exactly.
 8. Print the "Lab check" commands for me to run on the lab PC.
 If the card is ambiguous, contradicts docs/spec/06-contracts.md, needs a file not listed,
@@ -89,14 +89,14 @@ or a check fails twice for the same reason: STOP, write the problem under "Block
 The lab check for <CARD-ID> failed on the lab PC. Output:
 <paste the full output>
 Find the ROOT CAUSE (not the symptom). Fix it within the card's allowed files. Re-run the laptop check,
-commit "<CARD-ID>: fix <what>", and print the lab check again.
+commit "[FIX]: <What was fixed>" (AGENTS.md §7), and print the lab check again.
 If the fix needs a file outside the card's list or a contract change, stop and explain instead.
 ```
 
 ### Prompt C — escalate a stuck card (stronger model)
 ```text
 A smaller model attempted <CARD-ID> and failed twice. Read AGENTS.md, the card, docs/spec/06-contracts.md,
-and the attempts: `git log -p --grep "<CARD-ID>"`. Then either
+and the attempts: `git log -p -- <the card's Files>` (commits carry no card id). Then either
 (a) fix the implementation, or
 (b) split the card into 2–3 smaller cards using docs/spec/tasks/_TEMPLATE.md and add them to tasks/README.md.
 Say which you chose and why in 3 sentences, then do it.
@@ -104,7 +104,7 @@ Say which you chose and why in 3 sentences, then do it.
 
 ### Prompt D — review (mandatory for [M] cards done by a small model)
 ```text
-Review the commits for <CARD-ID> (`git log -p --grep "<CARD-ID>"`) against the card and docs/spec/06-contracts.md.
+Review the commits for <CARD-ID> (`git log -p -- <the card's Files>`; commits carry no card id) against the card and docs/spec/06-contracts.md.
 Check: paths and file formats (C3–C9, C14), camera conventions (C10), the Gaussian index invariant (C11),
 API shapes (C12), provenance headers (05-codebase-map.md §5), no files outside scope, no new dependencies,
 GPU imports inside functions, tests that would actually fail if the logic broke.

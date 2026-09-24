@@ -51,7 +51,7 @@ FORK patch **P-AS-1** (`05-codebase-map.md` §4.3).
    - reproduce the level selection the same way upstream does it for SAM v1. If upstream selects one of the 3 multimask outputs per point, do the same with SAM 2's per-point outputs.
    - Keep `mask_nms` / `masks_update` / `search_new_obj` unchanged.
 4. **Run the patched version** with `--detector sam2` on the same 30 frames. Compare the object counts with step 2.
-5. Commit in the fork (`T-B06: P-AS-1 --detector sam2`), push, and bump the submodule.
+5. Commit in the fork (`[ENH]: Add --detector sam2 option`, AGENTS.md §7), push, and bump the submodule.
 6. Write the port-report section: the detector used for V3 (sam2, or sam1 per the decision rule), time spent, and differences observed.
 
 ## Laptop check

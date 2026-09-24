@@ -49,7 +49,7 @@ FORK patch **P-GS-1** (`05-codebase-map.md` §4.2).
    - add `split_file: Optional[str] = None` to `Config`, with a one-line docstring comment like its neighbours;
    - pass `split_file=cfg.split_file` to **both** `Dataset(...)` calls;
    - if `Optional` isn't imported yet, import it.
-4. Commit and push in the fork, then bump the submodule in the main repo (AGENTS.md §7): `T-A04: split_file option (P-GS-1)`.
+4. Commit and push in the fork, then bump the submodule in the main repo (AGENTS.md §7): `[ENH]: Add split_file option to the COLMAP parser`.
 
 ## Gotchas
 - `parser.image_names` holds file names **with** extensions, the same strings as `split.json`. If the lab check shows a mismatch (e.g. subfolders), report it in Findings; don't hack around it.

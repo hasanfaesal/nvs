@@ -57,7 +57,7 @@ FORK patches P-SAGA-2 … P-SAGA-5. Keep each change as small as possible and do
 5. **P-SAGA-5:**
    - in `clip_utils/clip_utils.py`, change the `pretrained=` argument to the string `"laion2b_s34b_b88k"` (open_clip downloads or caches it);
    - delete the `plt.imshow(...)` line (and any matching `plt.show()`) in `clip_utils/__init__.py`.
-6. One commit per patch, messages `T-B01: P-SAGA-2 skip cameras without images` etc. Push the fork, then bump the submodule (AGENTS.md §7).
+6. One commit per patch, messages per AGENTS.md §7, e.g. `[FIX]: Skip cameras without images`. Push the fork, then bump the submodule (AGENTS.md §7).
 7. Add the rows to `05-codebase-map.md` §4.1 only if something differs from what's written there.
 
 ## Laptop check
