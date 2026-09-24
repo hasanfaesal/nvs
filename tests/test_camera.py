@@ -34,14 +34,31 @@ def test_spark_mesh_camera_at_z5():
     assert project(V, K, [[0, -1, 0]])[0, 1] < 50
 
 
+def lookat_matrix_world(position, target, up) -> list[float]:
+    """three.js camera.matrixWorld (column-major) for a camera at `position` looking at `target`."""
+    p, z = np.asarray(position, float), np.asarray(position, float) - np.asarray(target, float)
+    z /= np.linalg.norm(z)  # three.js cameras look down their local -z
+    x = np.cross(up, z)
+    x /= np.linalg.norm(x)
+    M = np.eye(4)
+    M[:3, 0], M[:3, 1], M[:3, 2], M[:3, 3] = x, np.cross(z, x), z, p
+    return M.T.flatten().tolist()
+
+
 def test_initial_view_round_trip():
     iv = initial_view(np.eye(3), np.array([0, 0, 5.0]), fy=50, height=100, points_xyz=np.zeros((1, 3)))
     assert np.allclose(iv["position"], [0, 0, 5])
-    assert np.allclose(iv["target"], [0, 0, 0])
+    assert iv["target"][2] < iv["position"][2]  # target on the -z side
     assert np.allclose(iv["up"], [0, 1, 0])
     assert np.isclose(iv["fov_y_deg"], 90)
     assert all(isinstance(iv[k], list) for k in ("position", "target", "up"))
-    assert np.allclose(colmap_viewmat(np.eye(3), [0, 0, 5]), threejs_to_viewmat(CAM_Z5, MESH16))
+
+    a = np.radians(30)  # also a rotated, off-axis camera, so a wrong target or up breaks the round trip
+    R_y = np.array([[np.cos(a), 0, np.sin(a)], [0, 1, 0], [-np.sin(a), 0, np.cos(a)]])
+    for R, t in [(np.eye(3), np.array([0, 0, 5.0])), (R_y, np.array([0.3, -0.2, 4.0]))]:
+        iv = initial_view(R, t, fy=50, height=100, points_xyz=np.zeros((1, 3)))
+        Mc = lookat_matrix_world(iv["position"], iv["target"], iv["up"])
+        assert np.allclose(threejs_to_viewmat(Mc, MESH16), colmap_viewmat(R, t))
 
 
 def test_fit_render_size_and_pixel():
