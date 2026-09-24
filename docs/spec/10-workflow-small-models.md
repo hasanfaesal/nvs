@@ -8,7 +8,7 @@ The project is split into ~56 **task cards** (`docs/spec/tasks/`). Each card is 
 
 | Role | Who | Does |
 |---|---|---|
-| **You** (lead) | human | pick cards, run lab checks on the GPU, review diffs, do the [H] cards |
+| **You** (lead) | human | pick cards, review diffs, `git push`, do the [H] cards (incl. full-size GPU runs) |
 | **Implementer** | small model: Claude Haiku (`claude --model haiku`) or a small model in Cursor | [S] cards |
 | **Senior** | stronger model: Claude Sonnet / Opus (`claude --model sonnet` / `--model opus`) or a larger model in Cursor | [M] cards, reviews, splitting stuck cards |
 
@@ -20,11 +20,17 @@ The project is split into ~56 **task cards** (`docs/spec/tasks/`). Each card is 
 
 ## 2. One-time setup
 
-1. **Laptop:** after T-002, `bash scripts/setup_laptop.sh`, then `source .venv/bin/activate`.
-2. **Coding tool.** It must run at the repo root (`~/code3/gsp`) so the rules load automatically:
-   - Claude Code reads `CLAUDE.md`, which imports `AGENTS.md`;
-   - Cursor reads `.cursor/rules/promptsplat.mdc`, which points to `AGENTS.md`.
-3. **Lab:** T-003 and T-004 done. `tmux new -s ps` for all work.
+1. **Lab PC = where everything runs.** Do T-003 (it includes uv, Claude Code, `git`/`gh` auth) and T-004. Then in `~/nvs`: `bash scripts/setup_laptop.sh` (the CPU `.venv` for the fast checks; the name is historical).
+2. **Connect from the laptop** (it's only a client now). `~/.ssh/config`:
+   ```text
+   Host lab
+     HostName <lab-machine>        # the WSL node's Tailscale name (`tailscale status`)
+     User <your WSL user>
+   ```
+   VS Code: *Remote-SSH: Connect to Host… → lab*, open `~/nvs`. Or plain `ssh lab` / `tailscale ssh`. Ports 3000/8000 are forwarded by VS Code automatically.
+3. **Coding tool.** It must run on the lab PC at the repo root (`~/nvs`) so the rules load automatically:
+   - Claude Code (`claude`, in the VS Code terminal or `tmux`) reads `CLAUDE.md`, which imports `AGENTS.md`;
+   - Cursor (Remote-SSH works the same way) reads `.cursor/rules/promptsplat.mdc`, which points to `AGENTS.md`.
 4. Put `docs/spec/tasks/README.md` (the status table) where you can see it; you update it after each card.
 
 ## 3. The loop (one card = one session)
@@ -33,11 +39,11 @@ The project is split into ~56 **task cards** (`docs/spec/tasks/`). Each card is 
 flowchart TB
   A["pick next card: status todo, all deps done"] --> B["fresh session with the right model"]
   B --> C["paste Prompt A"]
-  C --> D["model: read → implement → laptop check → commit"]
-  D --> E["you: review diff, git push"]
-  E --> F["lab: git pull --recurse-submodules; run lab check"]
-  F -->|pass| G["mark done in tasks/README.md; commit"]
-  F -->|fail| H["Prompt B with the output"]
+  C --> D["model: read → implement → laptop check (CPU)"]
+  D --> F["model: lab check (GPU, tmux if long)"]
+  F -->|pass| E["model commits; you review diff, git push"]
+  E --> G["mark done in tasks/README.md; commit"]
+  F -->|"fail: model fixes (Prompt B if a new session)"| H["fix"]
   H --> D
   H -->|failed twice| I["Prompt C: escalate or split"]
 ```
@@ -48,22 +54,15 @@ flowchart TB
    - Claude Code: start `claude --model haiku` for [S] cards, or `--model sonnet` / `--model opus` for [M]. Use `/clear` between cards. One card per context keeps the small model focused.
    - Cursor: new chat, pick the model.
 3. **Paste Prompt A** (§4) with the card ID.
-4. **The model works** on the laptop: it reads, implements, runs the **laptop check** (CPU only) until green, commits, and prints the **lab check**.
+4. **The model works** on the lab PC: it reads, implements, runs the **laptop check** (CPU, `.venv`) until green, then the **lab check** (GPU, `conda activate ps`, in `tmux` if it takes more than a minute) until green, and commits.
+   If a card changed `third_party/gsplat` or the SAGA CUDA code, the model rebuilds it as the card says (e.g. `pip install -e third_party/gsplat --no-build-isolation`) before the lab check.
 5. **You review:**
    - `git show --stat HEAD` → only the card's files changed?
-   - skim `git show HEAD` for the reviewer checklist in §8.
+   - skim `git show HEAD` for the reviewer checklist in §8, and the lab check output the model showed you.
    - Then `git push`. If a fork changed, the model already pushed the fork branch (AGENTS.md recipe). Check with `git submodule status`.
-6. **Lab:**
-   ```bash
-   tmux attach -t ps || tmux new -s ps
-   cd ~/nvs && git pull --recurse-submodules && git submodule update --init --recursive
-   conda activate ps
-   <lab check commands from the card>
-   ```
-   If a card changed `third_party/gsplat` or the SAGA CUDA code, rebuild it as the card says (e.g. `pip install -e third_party/gsplat --no-build-isolation`).
-7. **Pass:** set the card to `done` in `tasks/README.md`. Optionally paste the key output lines into the card's "Result" section. Commit `[DOCS]: Record <what> lab check results`.
-8. **Fail:** paste the output with **Prompt B**, in the same session if it still has context, otherwise a new one.
-9. **Two failed fixes for the same card:** use **Prompt C** with a stronger model. It either fixes the problem or splits the card into smaller ones.
+6. **Pass:** set the card to `done` in `tasks/README.md`. Optionally paste the key output lines into the card's "Result" section. Commit `[DOCS]: Record <what> lab check results`.
+7. **Fail** (a check you ran yourself, e.g. in an [H] card, or the session ran out of context): give the output to a new session with **Prompt B**.
+8. **Two failed fixes for the same card:** use **Prompt C** with a stronger model. It either fixes the problem or splits the card into smaller ones.
 
 ## 4. Prompts (copy-paste)
 
@@ -76,20 +75,21 @@ You are implementing ONE task card in the PromptSplat repo.
 4. Create/modify ONLY the files listed under "Files". Nothing else.
 5. Follow the card's "Provenance": COPY upstream code where it says COPY (keep the Source header),
    WRAP where it says WRAP, write new code only where it says NEW.
-6. Run the "Laptop check" commands; fix until they pass. Show me their final output.
-7. Commit following AGENTS.md §7 (`[TAG]: <Imperative summary>`, no card id). If you changed a fork under third_party/,
+6. Run the "Laptop check" commands (CPU, .venv); fix until they pass.
+7. Run the "Lab check" commands (GPU, conda activate ps): check nvidia-smi first, use tmux if it takes > 1 minute;
+   fix until they pass. Show me the final output of both checks.
+8. Commit following AGENTS.md §7 (`[TAG]: <Imperative summary>`, no card id). If you changed a fork under third_party/,
    follow the submodule recipe in AGENTS.md exactly.
-8. Print the "Lab check" commands for me to run on the lab PC.
 If the card is ambiguous, contradicts docs/spec/06-contracts.md, needs a file not listed,
 or a check fails twice for the same reason: STOP, write the problem under "Blockers" in the card, and tell me.
 ```
 
 ### Prompt B — fix after a failed lab check
 ```text
-The lab check for <CARD-ID> failed on the lab PC. Output:
+The lab check for <CARD-ID> failed. Output:
 <paste the full output>
-Find the ROOT CAUSE (not the symptom). Fix it within the card's allowed files. Re-run the laptop check,
-commit "[FIX]: <What was fixed>" (AGENTS.md §7), and print the lab check again.
+Find the ROOT CAUSE (not the symptom). Fix it within the card's allowed files. Re-run the laptop check and the lab check,
+commit "[FIX]: <What was fixed>" (AGENTS.md §7), and show both outputs.
 If the fix needs a file outside the card's list or a contract change, stop and explain instead.
 ```
 
@@ -122,12 +122,12 @@ cite 06-contracts.md sections and upstream sources precisely (repo, path, symbol
 
 `todo` → `doing` → `review` ([M] cards waiting for Prompt D) → `lab` (waiting for your GPU check) → `done`. Or `blocked`, with a one-line reason and a link to the card's Blockers section.
 
-## 6. How GPU code gets built on a laptop with no GPU
+## 6. Why modules stay importable without a GPU (fast CPU checks)
 
-1. **Lazy GPU imports.** `import gsplat`, `sam2`, `segment_anything` and `open_clip`, and any CUDA work, happen **inside functions**, never at module top level. Every module can then be imported on the laptop.
+1. **Lazy GPU imports.** `import gsplat`, `sam2`, `segment_anything` and `open_clip`, and any CUDA work, happen **inside functions**, never at module top level. Every module can then be imported in the CPU `.venv`, so the fast checks never touch the GPU.
 2. **Pure core, thin GPU shell.** Split logic into pure functions (numpy/torch-CPU) that tests exercise with synthetic data (split, camera math, mask resize, MRC warping, metrics, aggregation, mode math), and a thin function that calls the GPU library.
 3. **Synthetic tests:** tiny arrays, temp dirs, fixture PLYs written by `plyio`. No downloads, no datasets.
-4. **Fake engine:** `PS_FAKE=1` makes the server answer queries on the CPU, so the whole web UI can be built and clicked through on the laptop.
+4. **Fake engine:** `PS_FAKE=1` makes the server answer queries on the CPU, so the whole web UI can be built and clicked through without a trained scene.
 5. **Smoke-sized lab checks:** each card's lab check uses small settings (e.g. `--max-steps 500`, 3 frames, 1 seed) and finishes in minutes. Full-size runs are separate [H] cards (T-A16, T-B09, T-E08).
 
 ## 7. Git conventions

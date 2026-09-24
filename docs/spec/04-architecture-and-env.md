@@ -84,30 +84,28 @@ flowchart TB
 
 | Machine | Hardware | Used for |
 |---|---|---|
-| **Laptop** (Arch Linux) | i5-6200U, 7.7 GB RAM, Intel HD 520, **no CUDA**, **17 GB free disk** | editing code with a coding model; CPU unit tests; web UI development with the fixture scene and the fake engine |
-| **GitHub** | `github.com/hasanfaesal/nvs` + 3 forks | syncing code between the machines |
-| **Lab PC** | Windows 11, WSL2 Ubuntu, Intel i9, RTX A4000 16 GB, 1 TB NVMe | every GPU run; datasets; checkpoints; the demo |
+| **Laptop** (Arch Linux) | i5-6200U, 7.7 GB RAM, Intel HD 520, **no CUDA**, **17 GB free disk** | thin client only: VS Code Remote-SSH / `tailscale ssh` into the lab, and a browser |
+| **GitHub** | `github.com/hasanfaesal/nvs` + 3 forks | remote and backup; fork branches |
+| **Lab PC** | Windows 11, WSL2 Ubuntu, Intel i9, RTX A4000 16 GB, 1 TB NVMe | the coding model and the repo (`~/nvs`); CPU and GPU checks; datasets; checkpoints; the demo |
 
 ```mermaid
 sequenceDiagram
   participant U as You
-  participant M as Coding model (laptop)
+  participant M as Coding model (lab PC, over Remote-SSH)
   participant G as GitHub
-  participant P as Lab PC (WSL2 + GPU)
   U->>M: "Implement T-XXX" (prompt template, doc 10)
-  M->>M: edit files, run the laptop check (pytest / npm run build)
-  M->>G: git commit + push (and the fork branch, if a fork changed)
-  U->>P: tmux: git pull --recurse-submodules; run the lab check
-  P-->>U: output
-  U->>M: paste the output if it fails; the model fixes it
+  M->>M: edit files, run the laptop check (CPU: pytest / npm run build)
+  M->>M: run the lab check (GPU, tmux if long); fix until green
+  M->>M: git commit (and push the fork branch, if a fork changed)
+  U->>G: review the diff, git push
 ```
 
 Full details, templates and escalation rules are in `10-workflow-small-models.md`.
 
-## 5. Laptop setup (T-002 creates the files; you run the script once)
+## 5. CPU `.venv` setup (T-002 creates the files; run once in `~/nvs` on the lab PC)
 
 ```bash
-cd ~/code3/gsp
+cd ~/nvs
 bash scripts/setup_laptop.sh          # uv venv --python 3.10 .venv; CPU torch; env/laptop-requirements.txt
 source .venv/bin/activate
 pytest -q                             # all CPU tests
@@ -117,8 +115,8 @@ cd web && npm install && npm run dev  # http://localhost:3000, proxies /api to :
 PS_FAKE=1 uvicorn server.app:app --reload --port 8000
 ```
 
-- Never put datasets, checkpoints or real scenes on the laptop.
-- To see a real scene from the laptop, open the lab server through Tailscale (§8).
+- The `.venv` is CPU-only on purpose: the fast checks prove every module imports without GPU libraries.
+- From the laptop, open the dev servers through VS Code's port forwarding, or the lab server through Tailscale (§8).
 
 ## 6. Lab PC setup (T-003 is you; T-004 writes the scripts)
 
@@ -161,7 +159,7 @@ cd ~/nvs && bash scripts/setup_lab.sh && bash scripts/download_checkpoints.sh
 | `ps` | lab (conda) | Python 3.10, PyTorch 2.9.1 + CUDA 12.8 wheels, gsplat (fork, editable, compiled), SAM 2 (git), segment-anything (git), open_clip_torch, pycolmap, hdbscan, scikit-learn, scipy, plyfile, opencv-python-headless, fastapi, uvicorn, gdown, pytest, ffmpeg, nodejs 22 | `env/lab.yml` + `scripts/setup_lab.sh` (T-004) |
 | `colmap` | lab (conda) | COLMAP 4.2 CUDA build from conda-forge, kept separate so its CUDA libraries can't clash with PyTorch's | `scripts/setup_lab.sh` (T-004) |
 | `saga` | lab (conda) | **only if the port fails**: Python 3.7, PyTorch 1.12.1, CUDA 11.6, SAGA's CUDA extensions, pytorch3d, scikit-learn | `env/saga-legacy.yml` (T-006) |
-| `.venv` | laptop (uv) | Python 3.10, CPU PyTorch, numpy, opencv-python-headless, plyfile, pyyaml, fastapi, uvicorn, httpx, pytest, scikit-learn, scipy, pycolmap | `scripts/setup_laptop.sh` (T-002) |
+| `.venv` | lab PC, CPU-only (uv) | Python 3.10, CPU PyTorch, numpy, opencv-python-headless, plyfile, pyyaml, fastapi, uvicorn, httpx, pytest, scikit-learn, scipy, pycolmap | `scripts/setup_laptop.sh` (T-002) |
 
 - After T-004 succeeds, freeze the exact versions with `pip freeze > env/lab-lock.txt` and `conda env export -n colmap > env/colmap-lock.yml`, and commit both.
 - Upstream SHAs go in `THIRD_PARTY.md` (T-001).
@@ -207,7 +205,7 @@ Nothing else changes, because all SAGA stages are subprocesses and exchange data
 |---|---|---|
 | Lab PC browser (Windows) | `http://localhost:8000` | the server in WSL binds `127.0.0.1:8000`; WSL2 forwards localhost to Windows |
 | Your laptop / phone | `https://<lab-machine>.<tailnet>.ts.net` | in WSL: `sudo tailscale serve --bg 8000`. Tailnet devices only, over HTTPS; no public exposure. VERIFY (T-003) the exact `tailscale serve` syntax with `tailscale serve --help`. |
-| SSH | `tailscale ssh <user>@<lab-machine>` | as you do now; run long jobs in `tmux new -s ps` |
+| SSH / IDE | `tailscale ssh <user>@<lab-machine>`, or VS Code Remote-SSH to `Host lab` (doc 10 §2) | where you and the coding model work; run long jobs in `tmux new -s ps` |
 
 There is no authentication: only your tailnet can reach the server (NFR-7).
 
@@ -233,7 +231,7 @@ There is no authentication: only your tailnet can reach the server (NFR-7).
 | Where | Budget |
 |---|---|
 | Lab | envs ≈ 20 GB; checkpoints ≈ 4 GB; LERF-OVS ≈ 1 GB zipped, ≈ 2 GB unzipped; per processed scene ≈ 3–8 GB (3DGS ckpts, 5 variants × masks, 15 SAGA runs); total ≈ 100 GB of the 1 TB SSD |
-| Laptop | `.venv` ≈ 1.5 GB (CPU torch), `web/node_modules` ≈ 0.5 GB, fixture scene ≤ 20 MB. **Stay under ~3 GB total.** |
+| Laptop | nothing from the repo (thin client) |
 
 ## 11. Operating rules on the lab PC
 
@@ -241,4 +239,4 @@ There is no authentication: only your tailnet can reach the server (NFR-7).
 2. **One GPU job at a time.** Stop the demo server before training.
 3. Check `nvidia-smi` before starting a stage. Another user's process can make VRAM numbers meaningless.
 4. Never delete `scenes/<id>/logs/stages.jsonl`; the systems table is built from it.
-5. After every successful full run, commit `results/` from the lab: `git add results && git commit -m "[ENH]: Add <scene> <variant> results" && git push`. Then pull on the laptop.
+5. After every successful full run, commit `results/` from the lab: `git add results && git commit -m "[ENH]: Add <scene> <variant> results" && git push`.

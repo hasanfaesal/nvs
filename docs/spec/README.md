@@ -51,7 +51,7 @@ The proposals in `docs/proposals/` are the academic framing. **This spec is what
 | `[H]` / `[S]` / `[M]` | Human-only / small model / stronger model (or small model + review) |
 | FORK / PIP / COPY / WRAP / GENERATOR / NEW | Provenance types (`05-codebase-map.md` §1) |
 | `VERIFY (T-xxx)` | Checked on 2026-09-23 but must be re-confirmed at the pinned commit by task T-xxx |
-| "laptop" / "lab" | Your Arch Linux laptop (no GPU) / the lab PC (WSL2 + RTX A4000) |
+| "laptop" / "lab" | Your Arch Linux laptop (no GPU; only an SSH client now) / the lab PC (WSL2 + RTX A4000; where the code and the coding model live). "Laptop check" = CPU check, "lab check" = GPU check; both run on the lab |
 
 All paths are relative to the repo root.
 

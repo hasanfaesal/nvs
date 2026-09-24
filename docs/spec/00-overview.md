@@ -130,7 +130,7 @@ The research question is whether masks **tracked through the video with SAM 2** 
 | Consistency metric | mIoU + **mask reprojection consistency (MRC)** | Directly measures the "multi-view consistency" in the title |
 | Envs | Try one modern env with SAGA ported; fall back to a legacy `saga` env | Fewer envs if the port works; a safe fallback if not |
 | Upstream code | Forks as git submodules (SAGA, gsplat, AutoSeg-SAM2); everything else pinned pip/npm; small COPY snippets with attribution | The user asked to build on existing repos |
-| Coding workflow | Tool-agnostic (`AGENTS.md`); coding on the laptop; GPU checks on the lab PC by the user | The user uses Claude Code and Cursor; the laptop has no GPU |
+| Coding workflow | Tool-agnostic (`AGENTS.md`); the coding model runs on the lab PC over Remote-SSH and runs both CPU and GPU checks | The user uses Claude Code and Cursor; the laptop has no GPU |
 
 ## 9. Risks and fallbacks
 

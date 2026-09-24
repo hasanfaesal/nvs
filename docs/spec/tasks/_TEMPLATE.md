@@ -41,15 +41,15 @@ CLI: `python -m pipeline example --scene <id> [--force]`
 ## Gotchas
 - …
 
-## Laptop check (the model runs this; must pass before committing)
+## Laptop check (CPU; the model runs this first)
 ```bash
 source .venv/bin/activate && pytest -q tests/test_example.py
 ```
 Expected: all tests pass.
 
-## Lab check (you run on the lab PC; paste the output back if it fails)
+## Lab check (GPU; the model runs this on the lab PC after the laptop check)
 ```bash
-cd ~/nvs && git pull --recurse-submodules && conda activate ps
+conda activate ps
 python -m pipeline example --scene figurines
 ```
 Expected: …

@@ -24,12 +24,18 @@ results/      small JSON results — committed
 ```
 
 ## 3. Where code runs
-- **Laptop** (where you, the coding model, run): Arch Linux, **no GPU**, ~17 GB free disk. You edit code and run **CPU checks** only.
-- **Lab PC** (WSL2 Ubuntu, RTX A4000 16 GB): the human runs the card's **lab check** there and pastes the output back to you. Never assume you can run GPU code.
+- **Lab PC** (WSL2 Ubuntu, RTX A4000 16 GB, repo at `~/nvs`): **you, the coding model, run here.** The human connects over VS Code Remote-SSH / `tailscale ssh`. You edit code and run **both** checks in the card:
+  - **Laptop check** = the fast CPU check (`.venv`, pytest). Run it first.
+  - **Lab check** = the GPU check (`conda activate ps`). Run it yourself after the CPU check passes.
+- **GPU etiquette** (the lab PC is shared):
+  - run `nvidia-smi` before a GPU command; if another job is using the GPU, stop and tell the human;
+  - one GPU job at a time; anything longer than a minute runs in `tmux` (`tmux new -s ps`);
+  - only the card's smoke-sized lab check. Full-size runs are [H] cards for the human.
+- **Laptop** (Arch Linux, no GPU): only a thin client (IDE + browser). No code runs there.
 
 ## 4. Commands
 ```bash
-# laptop
+# CPU ("laptop check")
 source .venv/bin/activate
 pytest -q                                            # all CPU tests (must stay < 60 s)
 python scripts/make_fixture_scene.py                 # tiny synthetic scene in scenes/_fixture
@@ -38,7 +44,7 @@ cd web && npm run dev                                # http://localhost:3000 (pr
 cd web && npx nuxi generate                          # build → web/.output/public (served by FastAPI)
 cd web && npx vitest run                             # web unit tests (after T-B14)
 
-# lab (the human runs these)
+# GPU ("lab check")
 conda activate ps
 python -m pipeline <command> --scene <id> [...]      # C16
 uvicorn server.app:app --host 127.0.0.1 --port 8000
@@ -55,7 +61,7 @@ uvicorn server.app:app --host 127.0.0.1 --port 8000
    - **COPY:** copy the upstream code and keep the `Source:` header (format in `docs/spec/05-codebase-map.md` §5);
    - **WRAP:** call the upstream script as a subprocess through `pipeline/run_stage.py`;
    - **NEW:** only where the card says so.
-5. **GPU libraries are imported inside functions** (`gsplat`, `sam2`, `segment_anything`, `open_clip`, `hdbscan`, and anything that needs CUDA), never at module top level. Every module must import on the laptop.
+5. **GPU libraries are imported inside functions** (`gsplat`, `sam2`, `segment_anything`, `open_clip`, `hdbscan`, and anything that needs CUDA), never at module top level. Every module must import in the CPU-only `.venv`.
 6. **`torch.load(path, map_location="cpu")`** always (SAGA writes CUDA tensors).
 7. **No new dependencies and no new config keys** unless the card allows them. Defaults live in `configs/pipeline.yaml`; read them through `pipeline/config.py`.
 8. **Never reorder, filter or drop Gaussians** (index invariant, C11). Row i is the same Gaussian everywhere.
