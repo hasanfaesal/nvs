@@ -12,6 +12,10 @@ def build_command(scene_id: str, cfg: dict, max_steps: int | None = None) -> lis
     g = cfg["gsplat"]
     d = scene_dir(scene_id, cfg).resolve()
     steps = max_steps or g["max_steps"]
+    # TODO(figurines scale): gsplat's scene_scale (examples/datasets/colmap.py) still counts cameras that
+    # split.json excludes, so figurines' outlier frame_00162 (41.7x median distance) inflates it ~20-40x and,
+    # with it, means_lr and the MCMC noise. Undecided fix: extend P-GS-1 to skip excluded cameras, or pass
+    # --global_scale for figurines. Until then, compare figurines' PSNR with the other scenes at T-A16.
     cmd = [sys.executable, "simple_trainer.py", "mcmc",
            "--data_dir", str(d / "source"), "--data_factor", str(g["data_factor"]),
            "--result_dir", str(d / "3dgs"),
