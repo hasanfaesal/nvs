@@ -33,16 +33,18 @@ def extract_frames(video: Path, out_dir: Path, cfg: dict) -> list[Path]:
              "-vf", f"fps={cfg['extract_fps']},{scale}", "-q:v", "2", str(Path(tmp) / "%05d.jpg")],
             check=True,
         )
-        imgs = [cv2.imread(str(p)) for p in sorted(Path(tmp).glob("*.jpg"))]
-        if not imgs:
+        # One frame in memory at a time: score while reading, re-read only the kept ones.
+        tmp_paths = sorted(Path(tmp).glob("*.jpg"))
+        if not tmp_paths:
             raise RuntimeError(f"ffmpeg extracted no frames from {video} — check the file is a readable video")
-        keep = select_sharp([sharpness(im) for im in imgs], cfg["keep_every"], cfg["min_sharpness_ratio"])
+        scores = [sharpness(cv2.imread(str(p))) for p in tmp_paths]
+        keep = select_sharp(scores, cfg["keep_every"], cfg["min_sharpness_ratio"])
         out_dir.mkdir(parents=True, exist_ok=True)
         paths = []
         for k, i in enumerate(keep, 1):
             p = out_dir / f"frame_{k:05d}.jpg"
-            cv2.imwrite(str(p), imgs[i], [cv2.IMWRITE_JPEG_QUALITY, cfg["jpeg_quality"]])
+            cv2.imwrite(str(p), cv2.imread(str(tmp_paths[i])), [cv2.IMWRITE_JPEG_QUALITY, cfg["jpeg_quality"]])
             paths.append(p)
-    n_windows = -(-len(imgs) // cfg["keep_every"])
-    print(f"extracted {len(imgs)}, kept {len(paths)}, dropped {n_windows - len(paths)}")
+    n_windows = -(-len(tmp_paths) // cfg["keep_every"])
+    print(f"extracted {len(tmp_paths)}, kept {len(paths)}, dropped {n_windows - len(paths)}")
     return paths
