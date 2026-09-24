@@ -10,6 +10,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # so `python scripts/...` finds pipeline/
 from pipeline import plyio  # noqa: E402
 from pipeline.config import scenes_root  # noqa: E402
+from pipeline.split import RULE  # noqa: E402
 
 SH_C0 = 0.28209479177387814
 STEMS = [f"frame_{i:05d}" for i in range(1, 6)]
@@ -62,7 +63,7 @@ def make_fixture(out: Path, n_per_cluster: int = 10_000, seed: int = 0) -> None:
     images.mkdir(parents=True, exist_ok=True)
     for stem in STEMS:
         cv2.imwrite(str(images / f"{stem}.jpg"), rng.integers(0, 256, (H, W, 3), dtype=np.uint8))
-    split = {"scene_id": "_fixture", "every": 8, "train": [f"{s}.jpg" for s in STEMS],
+    split = {"scene_id": "_fixture", "rule": RULE, "every": 8, "train": [f"{s}.jpg" for s in STEMS],
              "test": [], "annotated": [], "excluded": []}
     (out / "split.json").write_text(json.dumps(split, indent=2))
 
