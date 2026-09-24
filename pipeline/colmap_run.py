@@ -59,7 +59,7 @@ def run_colmap(scene_id: str, matcher: str = "sequential", force: bool = False) 
     mapper = cfg["colmap"]["mapper"]
     for step, cmd in zip(("features", "matching", "mapper"),
                          build_commands(src, colmap_bin, matcher, mapper)):
-        run_stage(scene_id, f"colmap_{step}", cmd)
+        run_stage(scene_id, f"colmap_{step}", cmd, cwd=src)
 
     n_input = sum(1 for p in (src / "input").iterdir() if p.is_file())
     best = best_model(distorted)
@@ -69,7 +69,7 @@ def run_colmap(scene_id: str, matcher: str = "sequential", force: bool = False) 
         shutil.rmtree(distorted)
         distorted.mkdir()
         run_stage(scene_id, "colmap_global_mapper",
-                  build_commands(src, colmap_bin, matcher, "global_mapper")[2])
+                  build_commands(src, colmap_bin, matcher, "global_mapper")[2], cwd=src)
         best = best_model(distorted)
         ratio = len(colmap_io.load_cameras(best)) / n_input
     if ratio < MIN_REGISTERED:
@@ -80,7 +80,7 @@ def run_colmap(scene_id: str, matcher: str = "sequential", force: bool = False) 
     ## We need to undistort our images into ideal pinhole intrinsics.
     run_stage(scene_id, "colmap_undistort",
               [colmap_bin, "image_undistorter", "--image_path", str(src / "input"), "--input_path", str(best),
-               "--output_path", str(src), "--output_type", "COLMAP"])
+               "--output_path", str(src), "--output_type", "COLMAP"], cwd=src)
     out.mkdir(parents=True, exist_ok=True)
     for f in (src / "sparse").iterdir():
         if f.name != "0":

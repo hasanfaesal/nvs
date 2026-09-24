@@ -36,7 +36,8 @@ def test_run_colmap_falls_back_to_global_mapper(tmp_path, monkeypatch):
         (src / "input" / f"frame_{i:05d}.jpg").touch()
     stages = []
 
-    def fake_stage(scene_id, stage, cmd):
+    def fake_stage(scene_id, stage, cmd, cwd=None):
+        assert cwd == src  # AGENTS §6: cwd set explicitly
         stages.append(stage)
         if cmd[1] in ("mapper", "global_mapper"):
             (src / "distorted" / "sparse" / "0").mkdir()
