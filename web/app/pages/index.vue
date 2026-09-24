@@ -18,7 +18,7 @@ const formatCount = (n: number) => `${(n / 1e6).toFixed(2)} M`
 function formatMetrics(m: SceneSummary['metrics_3dgs']): string {
   const parts: string[] = []
   for (const [key, label, digits] of [['psnr', 'PSNR', 1], ['ssim', 'SSIM', 2], ['lpips', 'LPIPS', 2]] as const) {
-    const v = m[key]
+    const v = m?.[key]
     if (typeof v === 'number') parts.push(`${label} ${v.toFixed(digits)}`)
   }
   return parts.join(' · ')

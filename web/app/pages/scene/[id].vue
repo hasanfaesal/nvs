@@ -20,7 +20,7 @@ onMounted(async () => {
 const assetMb = computed(() => scene.value ? (scene.value.asset.bytes / 1e6).toFixed(0) : '')
 
 function metric(key: string, digits: number): string {
-  const v = scene.value?.metrics_3dgs[key]
+  const v = scene.value?.metrics_3dgs?.[key]
   return typeof v === 'number' ? v.toFixed(digits) : '–'
 }
 
@@ -84,8 +84,8 @@ function onError(message: string) {
         <p>{{ scene.num_gaussians.toLocaleString() }} Gaussians</p>
         <p class="text-sm text-muted">
           PSNR {{ metric('psnr', 2) }} · SSIM {{ metric('ssim', 3) }} · LPIPS {{ metric('lpips', 3) }}
-          <template v-if="scene.metrics_3dgs.lpips_net">
-            ({{ scene.metrics_3dgs.lpips_net }})
+          <template v-if="scene.metrics_3dgs?.lpips_net">
+            ({{ scene.metrics_3dgs?.lpips_net }})
           </template>
         </p>
         <p class="text-sm text-muted">

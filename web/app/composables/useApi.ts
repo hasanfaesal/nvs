@@ -5,7 +5,7 @@ export type SceneSummary = {
   title: string
   num_gaussians: number
   asset_url: string
-  metrics_3dgs: Record<string, number | string>
+  metrics_3dgs: Record<string, number | string> | null
   variants: VariantInfo[]
 }
 export type SceneDetail = SceneSummary & {
