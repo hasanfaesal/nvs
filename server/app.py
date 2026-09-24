@@ -3,8 +3,7 @@ import json
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.exception_handlers import http_exception_handler
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -41,6 +40,27 @@ def _scene(scene_id: str) -> tuple[Path, dict]:
     return scene, manifest
 
 
+class SpaStaticFiles(StaticFiles):
+    """Static web app; unknown non-API paths get 200.html with status 200 (client-side routes).
+
+    Must live here, not in an exception handler: `nuxi generate` writes 404.html, which
+    StaticFiles(html=True) would otherwise serve itself with status 404.
+    """
+
+    async def get_response(self, path: str, scope):
+        try:
+            response = await super().get_response(path, scope)
+            if response.status_code != 404:
+                return response
+        except StarletteHTTPException as exc:
+            if exc.status_code != 404:
+                raise
+        spa = Path(self.directory) / "200.html"
+        if scope["path"].startswith("/api") or not spa.is_file():
+            raise StarletteHTTPException(404)
+        return FileResponse(spa)
+
+
 def create_app(web_dir: Path | None) -> FastAPI:
     app = FastAPI()
 
@@ -70,15 +90,7 @@ def create_app(web_dir: Path | None) -> FastAPI:
         return FileResponse(scene_path / "web" / m["asset"]["file"], media_type="application/octet-stream")
 
     if web_dir is not None and web_dir.is_dir():
-        spa = web_dir / "200.html"
-
-        @app.exception_handler(StarletteHTTPException)
-        async def spa_fallback(request: Request, exc: StarletteHTTPException):
-            if exc.status_code == 404 and not request.url.path.startswith("/api") and spa.is_file():
-                return FileResponse(spa)
-            return await http_exception_handler(request, exc)
-
-        app.mount("/", StaticFiles(directory=web_dir, html=True), name="web")
+        app.mount("/", SpaStaticFiles(directory=web_dir, html=True), name="web")
     return app
 
 

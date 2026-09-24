@@ -1,3 +1,4 @@
+"""Tests for server/app.py: Phase A API and static web app hosting."""
 import json
 
 import numpy as np
@@ -65,10 +66,13 @@ def test_spa_fallback(tmp_path, monkeypatch):
     web.mkdir()
     (web / "index.html").write_text("INDEX")
     (web / "200.html").write_text("SPA")
+    (web / "404.html").write_text("NF")  # nuxi generate writes this; it must not win over 200.html
     c = TestClient(create_app(web))
 
     assert c.get("/").text == "INDEX"
     r = c.get("/scene/t1")
+    assert r.status_code == 200 and r.text == "SPA"
+    r = c.get("/scene/t1/deeper")
     assert r.status_code == 200 and r.text == "SPA"
     r = c.get("/api/unknown")
     assert r.status_code == 404 and r.json() == {"detail": "Not Found"}
