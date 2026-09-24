@@ -49,7 +49,7 @@ def cmd_export(args: argparse.Namespace) -> int:
     return 0
 
 
-def build_parser()-> argparse.ArgumentParser:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m pipeline")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("info", help="print paths, scenes, GPU and git info").set_defaults(func=cmd_info)
